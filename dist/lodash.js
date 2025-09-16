@@ -1,0 +1,1 @@
+"use strict";var e=typeof global=="object"&&global&&global.Object===Object&&global,t=typeof self=="object"&&self&&self.Object===Object&&self,o=e||t||Function("return this")(),l=function(){return o.Date.now()};async function r(n){console.log("Current timestamp:",l())}module.exports=r;
