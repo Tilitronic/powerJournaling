@@ -1,0 +1,58 @@
+import { WellbeingParameter } from "./types";
+
+export const wellbeingParameters: WellbeingParameter[] = [
+  {
+    id: "positiveEmotions",
+    label: "Positive Emotions",
+    info: "Feelings of joy, gratitude, contentment, hope, and pleasure. Includes savoring the moment, reflecting on past positives, and hopeful anticipation of the future.",
+    active: true,
+  },
+  {
+    id: "engagement",
+    label: "Engagement",
+    info: "Deep involvement in activities; being absorbed, losing sense of time (‘flow’). Doing work or hobbies that challenge your skills just enough that you’re fully present.",
+    active: true,
+  },
+  {
+    id: "relationships",
+    label: "Relationships",
+    info: "Supportive, meaningful social connections. Feeling loved, valued, belonging; giving and receiving support. Close friendships, family bonds, community ties.",
+    active: true,
+  },
+  {
+    id: "meaning",
+    label: "Meaning",
+    info: "Having a sense of purpose, belonging to something bigger than yourself. Knowing what matters in your life and using your strengths in service of values, causes or goals.",
+    active: true,
+  },
+  {
+    id: "accomplishment",
+    label: "Accomplishment",
+    info: "Mastery, achievement, working toward goals. Sense of progress, competence, whether or not it brings immediate joy—achieving things that matter to you.",
+    active: true,
+  },
+  {
+    id: "physicalCondition",
+    label: "Physical Condition",
+    info: "Your bodily health: exercise, sleep quality, nutrition; energy levels and how physically capable you feel.",
+    active: true,
+  },
+  {
+    id: "mindset",
+    label: "Mindset",
+    info: "Cultivating optimism, resilience, self-efficacy, and a growth mindset. A positive mindset shapes how you interpret setbacks, sustain motivation, and approach challenges.",
+    active: true,
+  },
+  {
+    id: "environment",
+    label: "Environment",
+    info: "Living and working in spaces that feel safe, comfortable, and supportive of wellbeing. Includes access to nature, orderliness, and resources that help you thrive.",
+    active: true,
+  },
+  {
+    id: "economicSecurity",
+    label: "Economic Security",
+    info: "Having financial stability, freedom from chronic money stress, and satisfaction with work. Economic security supports autonomy and reduces background stress that erodes wellbeing.",
+    active: true,
+  },
+] as const;

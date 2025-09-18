@@ -1,0 +1,43 @@
+import { Habit } from "./types";
+export const habits: Habit[] = [
+  {
+    id: "dayPlanning",
+    label: "Planning my day",
+    cue: "After breakfast",
+    reward: "More productive and organized day",
+    targetCount: 1,
+    periodicityMultiplier: 1,
+    periodicityUnit: "day",
+    active: true,
+  },
+  {
+    id: "exercise",
+    label: "Exercise",
+    cue: "After work or in the morning",
+    reward: "Better health, more energy, and improved mood",
+    targetCount: 1,
+    periodicityMultiplier: 1,
+    periodicityUnit: "day",
+    active: true,
+  },
+  {
+    id: "havingFun",
+    label: "Having fun",
+    cue: "In the evening or during free time",
+    reward: "Relaxation, joy, and stress relief",
+    targetCount: 1,
+    periodicityMultiplier: 1,
+    periodicityUnit: "day",
+    active: true,
+  },
+  {
+    id: "fpf",
+    label: "FPF",
+    cue: "At a consistent scheduled time",
+    reward: "Sense of progress and satisfaction",
+    targetCount: 1,
+    periodicityMultiplier: 1,
+    periodicityUnit: "day",
+    active: true,
+  },
+] as const;

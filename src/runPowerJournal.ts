@@ -1,6 +1,9 @@
 import { setGlobals } from "./globals";
 import type { TemplaterApi } from "templater-obsidian";
 import { loadConfig } from "./pjconfig";
+import { onStart } from "./onStart";
+import { buildDailyReport } from "./reportBuiders/buildDailyReport";
+import { DevLog } from "./globals";
 /**
  * Main entry point for running the Power Journal scripts.
  *
@@ -15,9 +18,14 @@ import { loadConfig } from "./pjconfig";
  * while still keeping Templater happy (all user scripts must receive `tp` as a parameter).
  */
 
+const dl = new DevLog("runPowerJournal");
 async function runPowerJournal(tp: TemplaterApi, configFilePath = "") {
-  const config = await loadConfig(configFilePath);
+  console.log("[PowerJournal] runPowerJournal started");
+  const config = await loadConfig(configFilePath); //EVERYTHING that uses config must be executed AFTER this line being run
   setGlobals(tp, config);
+  dl.l("Globals set, config loaded.");
+  onStart();
+  buildDailyReport();
 }
 
 module.exports = runPowerJournal; // important for Templater

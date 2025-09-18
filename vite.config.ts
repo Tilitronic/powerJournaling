@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  plugins: [tsconfigPaths()],
   build: {
     lib: {
       entry: "src/runPowerJournal.ts",
@@ -9,6 +11,11 @@ export default defineConfig({
     },
     outDir: "dist",
     minify: true,
-    rollupOptions: { external: [] },
+    rollupOptions: {
+      external: ["fs", "path"],
+      // output: {
+      //   exports: "default",
+      // },
+    },
   },
 });

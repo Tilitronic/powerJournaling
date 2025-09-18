@@ -14,7 +14,8 @@
     ],
     "paths": {
       "templater-obsidian": ["./types/templater/templater.d.ts"],
-      "templater-obsidian/*": ["./types/templater/*"]
+      "templater-obsidian/*": ["./types/templater/*"],
+      "src/*": ["./src/*"]
     },
     "types": ["obsidian", "node"], // this tells TS to load obsidian.d.ts globally
     "skipLibCheck": true,
