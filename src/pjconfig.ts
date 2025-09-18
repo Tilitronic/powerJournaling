@@ -17,6 +17,8 @@ export interface PowerJournalConfig {
   habits: Habit[] | [];
   wellbeingParameters: WellbeingParameter[] | [];
   devLogging: boolean;
+  devMode: boolean;
+  reportFileExtension?: ".pjf.md";
 }
 
 export const defaultConfig: PowerJournalConfig = {
@@ -35,6 +37,8 @@ export const defaultConfig: PowerJournalConfig = {
   devLogging: true,
   habits: habits,
   wellbeingParameters: wellbeingParameters,
+  devMode: true,
+  reportFileExtension: ".pjf.md",
 };
 
 export async function loadConfig(

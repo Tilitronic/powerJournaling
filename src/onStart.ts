@@ -1,9 +1,8 @@
 import { format } from "date-fns";
 import { MarkdownView } from "obsidian";
-import { createLogger, obApp } from "./globals";
-import { DevLog } from "./globals";
+import { useLogger, LNs, obApp } from "./globals";
 
-const dl = new DevLog("OnStart");
+const logger = useLogger(LNs.FileService);
 
 export async function onStart() {
   try {
@@ -19,14 +18,14 @@ export async function onStart() {
       if (file) {
         openFiles.push(file.path);
         if (file.path.endsWith(todayNote)) {
-          dl.l("Closing today's note: " + file.path);
+          logger.dev("Closing today's note: " + file.path);
           await leaf.detach();
         }
       }
     }
 
-    dl.l("Currently open files: " + openFiles.join(", "));
+    logger.dev("Currently open files: " + openFiles.join(", "));
   } catch (err) {
-    console.error("[FileService] onStart error:", err);
+    logger.error("Failed to run onStart:", err as Error);
   }
 }

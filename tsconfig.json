@@ -8,16 +8,7 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "baseUrl": ".",
-    "typeRoots": [
-      "./types", // your custom typings
-      "./node_modules/@types"
-    ],
-    "paths": {
-      "templater-obsidian": ["./types/templater/templater.d.ts"],
-      "templater-obsidian/*": ["./types/templater/*"],
-      "src/*": ["./src/*"]
-    },
-    "types": ["obsidian", "node"], // this tells TS to load obsidian.d.ts globally
+    "typeRoots": ["./types", "./node_modules/@types"],
     "skipLibCheck": true,
     "lib": ["DOM", "ES2020"]
   },

@@ -2,10 +2,12 @@ import { tagsService } from "./TagsService";
 import { inputService } from "./InputService";
 import type { CreateInputOptions } from "./InputService";
 import { InputsConst } from "./InputService";
+import { useLogger, LNs } from "../globals";
 
 export class ComponentBuilder {
   private componentName: string;
   private content: string[] = [];
+  private logger = useLogger(LNs.ComponentBuilder);
 
   constructor(componentName: string) {
     this.componentName = componentName;
@@ -103,9 +105,11 @@ export class ComponentBuilder {
 
   // --- Render final component ---
   render() {
-    return tagsService.component.wrap(
+    const output = tagsService.component.wrap(
       this.componentName,
       this.content.join("\n\n")
     );
+    this.logger.dev("Component rendered", { outputLength: output.length });
+    return output;
   }
 }

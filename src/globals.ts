@@ -1,7 +1,12 @@
 // src/globals.ts
-import type { TemplaterApi } from "templater-obsidian";
+import type { TemplaterApi } from "templater";
 import type { PowerJournalConfig } from "./pjconfig";
 import { App } from "obsidian";
+import {
+  LoggerService,
+  LoggerName,
+  LoggerNames,
+} from "./services/LoggerService";
 
 export let tp: TemplaterApi;
 export let config: PowerJournalConfig;
@@ -17,34 +22,12 @@ export function setGlobals(
   config = loadedConfig;
 }
 
-/**
- * Dev logging helper, checks config.devLogging
- */
-export function logDev(msg: string) {
-  if (config?.devLogging) {
-    console.log(`[PJ] ${msg}`);
-  }
+//TODO: rewrite all devlogging to this loggerService
+export const loggerService = new LoggerService(() => config);
+export function useLogger(prefix: LoggerName) {
+  return loggerService.withPrefix(prefix);
 }
-
-export function createLogger(prefix: string) {
-  return (message: string) => {
-    logDev(`[${prefix}] ${message}`);
-  };
-}
-
-export class DevLog {
-  private prefix: string;
-
-  constructor(prefix: string) {
-    this.prefix = prefix;
-  }
-
-  l(message: string) {
-    if (config?.devLogging) {
-      console.log(`[PJ][${this.prefix}] ${message}`);
-    }
-  }
-}
+export const LNs = LoggerNames;
 
 //@ts-expect-error app is global in Obsidian
 export const obApp = app as App;

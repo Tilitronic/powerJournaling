@@ -8,6 +8,7 @@
     "lodash-es": "^4.17.21",
     "mdast-builder": "^1.1.1",
     "mdast-util-to-markdown": "^2.1.2",
+    "obsidian": "^1.8.7",
     "remark": "^15.0.1",
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
@@ -22,7 +23,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite build --watch",
-    "build": "vite build && node copyToObsidian.js"
+    "build": "vite build && node copyToObsidian.js",
+    "postinstall": "node fetchTemplater.js"
   },
   "keywords": [],
   "author": "",
@@ -34,6 +36,7 @@
     "@types/mdast": "^4.0.4",
     "@types/node": "^24.5.0",
     "@types/unist": "^3.0.3",
+    "obsidian-typings": "^1.0.0",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }

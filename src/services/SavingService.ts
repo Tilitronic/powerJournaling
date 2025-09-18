@@ -1,20 +1,26 @@
 // src/services/SavingService.ts
-import { config, createLogger, obApp } from "../globals";
+import { config, obApp, useLogger, LNs } from "../globals";
 import { format } from "date-fns";
-import type { TFile, TFolder, TAbstractFile } from "obsidian";
+import type { TFile, TFolder } from "obsidian";
 
-const log = createLogger("FileService");
+const logger = useLogger(LNs.SavingService);
 
 export const savingService = {
-  // Vault-relative base path for all reports
+  /** Vault-relative base path for all reports */
   get baseOutput() {
-    return `${config.projectDir}/${config.outputDir}`;
+    return `${config?.projectDir ?? "vault"}/${config?.outputDir ?? "outputs"}`;
   },
 
-  // Map report types to folder paths
-  get reportFolders() {
+  /** File extension for reports */
+  get fileExtension() {
+    // Default to standard markdown
+    return config?.reportFileExtension ?? ".md";
+  },
+
+  /** Map report types to folder paths */
+  get reportFolders(): Record<string, string> {
     const folders: Record<string, string> = {};
-    for (const pair of config.reportFolderPairs ?? []) {
+    for (const pair of config?.reportFolderPairs ?? []) {
       folders[pair.report] = `${this.baseOutput}/${pair.folder}`;
     }
     return folders;
@@ -29,27 +35,75 @@ export const savingService = {
   async _ensureFolder(folderPath: string) {
     const folder = obApp.vault.getAbstractFileByPath(folderPath);
     if (!folder) {
-      log(`Creating folder: ${folderPath}`);
+      logger.dev(`Creating folder: ${folderPath}`);
       await obApp.vault.createFolder(folderPath);
     }
   },
 
-  /** List markdown files in a vault folder */
+  /** List markdown files in a vault folder */ //TODO: make listing by format configurable
   async _listFiles(folderPath: string): Promise<string[]> {
     await this._ensureFolder(folderPath);
-
     const folder = obApp.vault.getAbstractFileByPath(
       folderPath
     ) as TFolder | null;
     if (!folder || !folder.children) return [];
-
     return folder.children
       .filter((f): f is TFile => "extension" in f && f.extension === "md")
       .map((f) => f.name);
   },
 
+  /** Open a file in Obsidian, optionally split/source for devMode */
+  async _openFile(file: TFile) {
+    try {
+      logger.dev(`_openFile start: ${file.path}`);
+
+      // Open file in main leaf
+      const leaf = obApp.workspace.getLeaf(true);
+      await leaf.openFile(file);
+      logger.dev(`Main leaf opened file: ${file.path}`);
+
+      // If devMode, split right leaf and force source mode
+      if (config?.devMode) {
+        const rightLeaf = obApp.workspace.createLeafBySplit(
+          leaf,
+          "vertical",
+          false
+        );
+        await rightLeaf.openFile(file);
+
+        // Force source mode (disables live preview)
+        const viewState = {
+          type: "markdown",
+          state: {
+            file: file.path,
+            mode: "source",
+          },
+        };
+
+        try {
+          await rightLeaf.setViewState(viewState);
+          logger.dev(`DevMode: right leaf forced to source mode`);
+        } catch (err) {
+          logger.warn(
+            `Failed to force right leaf to source mode: ${
+              (err as Error).message
+            }`
+          );
+        }
+      }
+    } catch (err) {
+      logger.error(
+        `Failed to open file ${file.path}: ${(err as Error).message}`
+      );
+    }
+  },
   /** Write a report file with automatic numbering */
-  async write(options: { type: string; data?: string; content?: string }) {
+  async write(options: {
+    type: string;
+    data?: string;
+    content?: string;
+    open?: boolean; // optional, default is true
+  }) {
     const content = options.data ?? options.content;
     if (!content) throw new Error("No content provided for write()");
 
@@ -62,38 +116,49 @@ export const savingService = {
     const files = await this._listFiles(folder);
     const nextIndex = files.length + 1;
     const indexStr = String(nextIndex).padStart(5, "0");
-
-    const fileName = `${todayPrefix}-${indexStr}-${options.type}.md`;
+    const fileName = `${todayPrefix}-${indexStr}-${options.type}${this.fileExtension}`;
     const filePath = `${folder}/${fileName}`;
 
     const exists = obApp.vault.getAbstractFileByPath(filePath);
     if (exists) {
-      log(`File already exists: ${filePath}. Skipping write.`);
+      logger.warn(`File already exists: ${filePath}. Skipping write.`);
       return filePath;
     }
 
-    log(`Writing new file: ${filePath}`);
-    await obApp.vault.create(filePath, content);
+    logger.info(`Writing new file: ${filePath}`);
+    const file = await obApp.vault.create(filePath, content);
+
+    if (options?.open !== false) {
+      await this._openFile(file);
+    }
+
     return filePath;
   },
 
   /** General-purpose write */
-  async writeGeneral(filePath: string, data: string): Promise<string> {
+  async writeGeneral(
+    filePath: string,
+    data: string,
+    open = false
+  ): Promise<string> {
+    let file: TFile;
     const existing = obApp.vault.getAbstractFileByPath(filePath);
 
     if (existing) {
-      // Assert at runtime that it's a TFile
       if ("extension" in existing) {
-        log(`Overwriting existing file: ${filePath}`);
-        await obApp.vault.modify(existing as TFile, data); // <-- type assertion
+        logger.info(`Overwriting existing file: ${filePath}`);
+        await obApp.vault.modify(existing as TFile, data);
+        file = existing as TFile;
       } else {
-        log(`Path exists but is not a file, cannot modify: ${filePath}`);
+        logger.error(`Path exists but is not a file: ${filePath}`);
         throw new Error(`Path exists but is not a file: ${filePath}`);
       }
     } else {
-      log(`Creating new file: ${filePath}`);
-      await obApp.vault.create(filePath, data);
+      logger.info(`Creating new file: ${filePath}`);
+      file = await obApp.vault.create(filePath, data);
     }
+
+    if (open) await this._openFile(file);
 
     return filePath;
   },
@@ -102,8 +167,10 @@ export const savingService = {
   async delete(filePath: string) {
     const file = obApp.vault.getAbstractFileByPath(filePath);
     if (file) {
-      log(`Deleting file: ${filePath}`);
+      logger.info(`Deleting file: ${filePath}`);
       await obApp.vault.delete(file);
+    } else {
+      logger.warn(`Cannot delete; file not found: ${filePath}`);
     }
   },
 };
