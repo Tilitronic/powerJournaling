@@ -6,6 +6,7 @@
     "fs-extra": "^11.3.2",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
+    "lowdb": "^7.0.1",
     "mdast-builder": "^1.1.1",
     "mdast-util-to-markdown": "^2.1.2",
     "obsidian": "^1.8.7",

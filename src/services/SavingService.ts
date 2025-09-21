@@ -1,3 +1,4 @@
+import { reportDefinitions } from "../reportDefinitions";
 // src/services/SavingService.ts
 import { config, obApp, useLogger, LNs } from "../globals";
 import { format } from "date-fns";
@@ -20,8 +21,8 @@ export const savingService = {
   /** Map report types to folder paths */
   get reportFolders(): Record<string, string> {
     const folders: Record<string, string> = {};
-    for (const pair of config?.reportFolderPairs ?? []) {
-      folders[pair.report] = `${this.baseOutput}/${pair.folder}`;
+    for (const [reportType, { folder }] of Object.entries(reportDefinitions)) {
+      folders[reportType] = `${this.baseOutput}/${folder}`;
     }
     return folders;
   },

@@ -1,2 +1,3 @@
+# Ignore AI folder
 node_modules
 .env

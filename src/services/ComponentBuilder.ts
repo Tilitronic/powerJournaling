@@ -1,7 +1,7 @@
 import { tagsService } from "./TagsService";
-import { inputService } from "./InputService";
-import type { CreateInputOptions } from "./InputService";
-import { InputsConst } from "./InputService";
+import { inputCreator } from "./InputCreator";
+import type { CreateInputOptions } from "./InputCreator";
+import { InputsConst } from "./InputCreator";
 import { useLogger, LNs } from "../globals";
 
 export class ComponentBuilder {
@@ -31,13 +31,13 @@ export class ComponentBuilder {
 
   _input(opts: CreateInputOptions) {
     const optsWithComponent = { ...opts, componentName: this.componentName };
-    this.content.push(inputService.createInput(optsWithComponent));
+    this.content.push(inputCreator.createInput(optsWithComponent));
     return this;
   }
 
   // --- Convenience methods ---
   _text(inputName: string, defaultValue?: string, placeholder?: string) {
-    const value = inputService.createInput({
+    const value = inputCreator.createInput({
       componentName: this.componentName,
       type: InputsConst.text,
       inputName,
@@ -49,7 +49,7 @@ export class ComponentBuilder {
   }
 
   _richText(inputName: string, defaultValue?: string, placeholder?: string) {
-    const value = inputService.createInput({
+    const value = inputCreator.createInput({
       componentName: this.componentName,
       type: InputsConst.richText,
       inputName,
@@ -61,7 +61,7 @@ export class ComponentBuilder {
   }
 
   _boolean(inputName: string, label: string, defaultValue?: boolean) {
-    const value = inputService.createInput({
+    const value = inputCreator.createInput({
       componentName: this.componentName,
       type: InputsConst.boolean,
       inputName,
@@ -73,7 +73,7 @@ export class ComponentBuilder {
   }
 
   _number(inputName: string, defaultValue?: number) {
-    const value = inputService.createInput({
+    const value = inputCreator.createInput({
       componentName: this.componentName,
       type: InputsConst.number,
       inputName,
@@ -90,7 +90,7 @@ export class ComponentBuilder {
     singleChoice?: boolean,
     collapsed?: boolean
   ) {
-    const value = inputService.createInput({
+    const value = inputCreator.createInput({
       componentName: this.componentName,
       type: InputsConst.multicheckbox,
       inputName,

@@ -7,10 +7,11 @@ export const LoggerNames = {
   ComponentBuilder: "ComponentBuilder",
   SavingService: "SavingService",
   TagsService: "TagsService",
-  InputService: "InputService",
+  InputCreator: "InputCreator",
   FileService: "FileService",
   OnStart: "OnStart",
-  ReadingService: "ReadingService",
+  InputCollector: "InputCollector",
+  ValueExtractor: "ValueExtractor",
 } as const;
 
 export type LoggerName = (typeof LoggerNames)[keyof typeof LoggerNames];

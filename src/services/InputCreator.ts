@@ -12,7 +12,7 @@ export const InputsConst = {
   number: "number",
 } as const;
 
-type InputType = (typeof InputsConst)[keyof typeof InputsConst];
+export type InputType = (typeof InputsConst)[keyof typeof InputsConst];
 
 // Base properties shared by all inputs
 interface BaseInputOptions {
@@ -60,8 +60,8 @@ export type CreateInputOptions =
   | RichTextInputOptions
   | NumberInputOptions;
 
-export class InputService {
-  private logger = useLogger(LNs.InputService);
+export class InputCreator {
+  private logger = useLogger(LNs.InputCreator);
 
   /**
    * Create a Markdown input wrapped in tags
@@ -124,7 +124,12 @@ export class InputService {
       throw err;
     }
 
-    return tagsService.input.wrap(componentName, inputName, mdContent);
+    return tagsService.input.wrap({
+      componentName,
+      inputName,
+      content: mdContent,
+      inputType: type,
+    });
   }
 
   parseMarkdown(md: string) {
@@ -147,4 +152,4 @@ export class InputService {
 }
 
 // Singleton
-export const inputService = new InputService();
+export const inputCreator = new InputCreator();
