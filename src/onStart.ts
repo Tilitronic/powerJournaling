@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { MarkdownView, TFolder, TFile, TAbstractFile } from "obsidian";
+import type { MarkdownView } from "obsidian";
 import { useLogger, LNs, obApp, config } from "./globals";
 
 const logger = useLogger(LNs.FileService);
@@ -27,11 +27,11 @@ export async function onStart() {
     // 2. Remove old script-triggering notes in core directory
     const coreDir = `${config.projectDir}/${config.coreDir}`;
     const folder = obApp.vault.getAbstractFileByPath(coreDir);
-    if (folder && folder instanceof TFolder) {
+    if (folder && "children" in folder) {
       const datePattern = /^\d{2}\.\d{2}\.\d{4}\.md$/;
-      for (const child of folder.children) {
+      for (const child of folder.children as any[]) {
         if (
-          child instanceof TFile &&
+          "extension" in child &&
           child.extension === "md" &&
           datePattern.test(child.name) &&
           child.name !== todayNote

@@ -1,7 +1,7 @@
 // src/globals.ts
 import type { TemplaterApi } from "templater";
 import type { PowerJournalConfig } from "./pjconfig";
-import { App } from "obsidian";
+import type { App } from "obsidian";
 import {
   LoggerService,
   LoggerName,

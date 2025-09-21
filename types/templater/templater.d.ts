@@ -7,7 +7,7 @@
 
 // .dev/templater-obsidian.d.ts
 declare module "templater" {
-  import { Plugin, App, TFile } from "obsidian";
+  import type { Plugin, App, TFile } from "obsidian";
 
   export interface TemplaterApi {
     file: {
