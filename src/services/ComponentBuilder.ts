@@ -87,7 +87,6 @@ export class ComponentBuilder {
     inputName: string,
     options: { label: string; value: string }[],
     defaultValue?: string[],
-    singleChoice?: boolean,
     collapsed?: boolean
   ) {
     const value = inputCreator.createInput({
@@ -96,12 +95,30 @@ export class ComponentBuilder {
       inputName,
       options,
       defaultValue,
-      singleChoice,
       collapsed,
     });
     this.content.push(value);
     return this;
   }
+
+  // _multiCheckboxSC(
+  //   inputName: string,
+  //   options: { label: string; value: string }[],
+  //   defaultValue?: string[],
+  //   collapsed?: boolean
+  // ) {
+  //   const value = inputCreator.createInput({
+  //     componentName: this.componentName,
+  //     type: InputsConst.multicheckbox,
+  //     inputName,
+  //     options,
+  //     singleChoice: true,
+  //     defaultValue,
+  //     collapsed,
+  //   });
+  //   this.content.push(value);
+  //   return this;
+  // }
 
   // --- Render final component ---
   render() {

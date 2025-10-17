@@ -14,6 +14,25 @@ export function habitTracking() {
     // cb._md(`*Cue*. ${habit.cue}`);
     // cb._md(`*Reward*. ${habit.reward}`);
   });
+  cb._text("Test Text Input");
+  cb._md("***");
+  cb._number("Test Number Input 1");
+  cb._md("***");
+  cb._number("Test Number Input 2");
+  cb._md("***");
+  cb._multiCheckbox("Test MultiCheckbox Input", [
+    { label: "Option 1", value: "option_1" },
+    { label: "Option 2", value: "option_2" },
+    { label: "Option 3", value: "option_3" },
+  ]);
+  cb._md("***");
+  cb._richText("Test Rich Text Input");
+  cb._md("***");
+  cb._multiCheckbox("Test MultiCheckbox Input", [
+    { label: "Option 1", value: "option_1" },
+    { label: "Option 2", value: "option_2" },
+    { label: "Option 3", value: "option_3" },
+  ]);
 
   return cb.render();
 }

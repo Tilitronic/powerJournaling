@@ -28,6 +28,51 @@ export interface LoggerConfig {
   [service: string]: Partial<Record<LogLevel, boolean>>;
 }
 
+/**
+ * Default logger configuration with all services and all levels enabled.
+ * Use this as a reference to toggle specific services/levels off during development.
+ */
+export const defaultLoggerConfig: LoggerConfig = {
+  [LoggerNames.ComponentBuilder]: {
+    dev: false,
+    info: true,
+    warn: true,
+    error: true,
+  },
+  [LoggerNames.SavingService]: {
+    dev: true,
+    info: true,
+    warn: true,
+    error: true,
+  },
+  [LoggerNames.TagsService]: {
+    dev: false,
+    info: true,
+    warn: true,
+    error: true,
+  },
+  [LoggerNames.InputCreator]: {
+    dev: false,
+    info: true,
+    warn: true,
+    error: true,
+  },
+  [LoggerNames.FileService]: { dev: true, info: true, warn: true, error: true },
+  [LoggerNames.OnStart]: { dev: true, info: true, warn: true, error: true },
+  [LoggerNames.InputCollector]: {
+    dev: true,
+    info: true,
+    warn: true,
+    error: true,
+  },
+  [LoggerNames.ValueExtractor]: {
+    dev: true,
+    info: true,
+    warn: true,
+    error: true,
+  },
+};
+
 // 🎨 ANSI colors
 const colors = {
   reset: "\x1b[0m",
@@ -100,10 +145,9 @@ export class LoggerService {
     };
     this.logs.push(entry);
 
-    const cfg = this.getConfig?.() ?? {};
     const serviceLevelConfig = this.serviceConfig[this.prefix] ?? {};
-    const shouldPrint =
-      serviceLevelConfig[level] ?? (level !== "dev" || cfg?.devLogging);
+    // Default to true if not explicitly configured
+    const shouldPrint = serviceLevelConfig[level] ?? true;
 
     if (!shouldPrint) return;
 
@@ -155,6 +199,8 @@ export class LoggerService {
   }
 
   withPrefix(prefix: LoggerName) {
-    return new LoggerService(this.getConfig, prefix);
+    const newLogger = new LoggerService(this.getConfig, prefix);
+    newLogger.setServiceConfig(this.serviceConfig);
+    return newLogger;
   }
 }

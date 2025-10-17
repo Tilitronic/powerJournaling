@@ -28,56 +28,100 @@ export class ValueExtractor {
     const results: ExtractedInput[] = [];
     const errors: string[] = [];
 
+    // Track input boundaries: key -> { meta, startPos, endPos, hiddenValues }
     const inputs: Record<
       string,
-      { meta: any; content: string[]; hiddenValues: string[] }
+      {
+        meta: any;
+        startPos: number;
+        endPos: number;
+        hiddenValues: Array<{ value: string; pos: number }>;
+      }
     > = {};
 
-    visit(tree, "html", (node: any) => {
-      const value = node.value as string;
-
-      if (value.includes(TagsClassesConst.input)) {
-        const meta = this.getMeta(value);
-        if (meta) {
-          const key = this.key(meta);
-          if (!inputs[key]) {
-            inputs[key] = { meta, content: [], hiddenValues: [] };
-          }
-        }
-      } else if (value.includes(TagsClassesConst.hiddenValue)) {
-        const meta = this.getMeta(value);
-        if (meta && meta.value) {
-          const key = this.key(meta);
-          if (!inputs[key]) {
-            inputs[key] = { meta, content: [], hiddenValues: [] };
-          }
-          inputs[key].hiddenValues.push(meta.value);
-        }
-      }
-    });
-
-    // TODO: This is a naive approach. If multiple inputs are present, content may be incorrectly assigned.
-    // Consider tracking input boundaries for more accurate extraction.
+    // First pass: find start/end positions and hidden values using character positions
     visit(tree, (node: any) => {
-      if (node.type === "html") return;
+      if (node.type === "html" && node.position) {
+        const value = node.value as string;
+        const pos = node.position.start.offset;
 
-      const parent = (node.position?.start || {}).line;
-      if (!parent) return;
+        if (value.includes(TagsClassesConst.input)) {
+          const meta = this.getMeta(value);
+          if (meta) {
+            const key = this.key(meta);
+            const isEnd = value.includes('end"');
 
-      // naive: just accumulate raw markdown text for now
-      if (node.value || node.children) {
-        // for simplicity stringify node
-        const raw = unified().use(remarkStringify).stringify(node);
-        for (const key in inputs) {
-          inputs[key].content.push(raw);
+            if (!isEnd) {
+              // Start tag
+              if (!inputs[key]) {
+                inputs[key] = {
+                  meta,
+                  startPos: node.position.end.offset,
+                  endPos: -1,
+                  hiddenValues: [],
+                };
+              } else {
+                inputs[key].startPos = node.position.end.offset;
+              }
+            } else {
+              // End tag
+              if (inputs[key]) {
+                inputs[key].endPos = node.position.start.offset;
+              } else {
+                inputs[key] = {
+                  meta,
+                  startPos: -1,
+                  endPos: node.position.start.offset,
+                  hiddenValues: [],
+                };
+              }
+            }
+          }
+        } else if (value.includes(TagsClassesConst.hiddenValue)) {
+          const meta = this.getMeta(value);
+          if (meta && meta.value) {
+            const key = this.key(meta);
+            if (!inputs[key]) {
+              inputs[key] = {
+                meta,
+                startPos: -1,
+                endPos: -1,
+                hiddenValues: [],
+              };
+            }
+            inputs[key].hiddenValues.push({ value: meta.value, pos });
+          }
         }
       }
     });
 
+    // Second pass: extract content for each input based on character positions
     for (const key in inputs) {
-      const { meta, content, hiddenValues } = inputs[key];
-      const raw = content.join("").trim();
-      const result = this.extractValue(meta.inputType, raw, hiddenValues, meta);
+      const { meta, startPos, endPos, hiddenValues } = inputs[key];
+      if (startPos === -1 || endPos === -1) {
+        logger.warn(`Input ${key} missing start or end tag, skipping`);
+        continue;
+      }
+
+      // Extract substring from markdown
+      const rawContent = markdown.substring(startPos, endPos).trim();
+
+      // Remove HTML spans from the content
+      const cleanedContent = rawContent
+        .replace(/<span[^>]*>.*?<\/span>/gs, "")
+        .trim();
+
+      // Extract hidden values that fall within this input's boundaries
+      const relevantHiddenValues = hiddenValues
+        .filter((hv) => hv.pos >= startPos && hv.pos < endPos)
+        .map((hv) => hv.value);
+
+      const result = this.extractValue(
+        meta.inputType,
+        cleanedContent,
+        relevantHiddenValues,
+        meta
+      );
       if (result.errors.length > 0) {
         errors.push(...result.errors);
       }
@@ -135,7 +179,11 @@ export class ValueExtractor {
         break;
       }
       case "text": {
-        const cleaned = raw.replace(/^>\s?/gm, "").trim();
+        // Remove blockquote markers and HTML tags
+        const cleaned = raw
+          .replace(/^>\s?/gm, "")
+          .replace(/<[^>]+>/g, "") // Strip HTML tags
+          .trim();
         if (meta.required && !cleaned) {
           errors.push("Text input is required");
         }
@@ -144,7 +192,8 @@ export class ValueExtractor {
         break;
       }
       case "richText": {
-        const cleaned = raw.trim();
+        // Remove HTML tags from rich text
+        const cleaned = raw.replace(/<[^>]+>/g, "").trim();
         if (meta.required && !cleaned) {
           errors.push("Rich text input is required");
         }
@@ -155,12 +204,22 @@ export class ValueExtractor {
       case "multicheckbox": {
         const values: string[] = [];
         const lines = raw.split("\n");
-        lines.forEach((line, idx) => {
+        let hiddenValueIdx = 0;
+
+        lines.forEach((line) => {
+          // Each line may have a hidden value span - check if this line is checked
           if (line.match(/\[(x|X)\]/)) {
-            const hv = hiddenValues[idx];
-            if (hv) values.push(hv);
+            // Find the corresponding hidden value for this checked line
+            if (hiddenValueIdx < hiddenValues.length) {
+              values.push(hiddenValues[hiddenValueIdx]);
+            }
+          }
+          // Increment if line contains a checkbox (checked or unchecked)
+          if (line.match(/\[[ xX]\]/)) {
+            hiddenValueIdx++;
           }
         });
+
         if (meta.required && values.length === 0) {
           errors.push("At least one option must be selected");
         }
@@ -181,7 +240,10 @@ export class ValueExtractor {
       case "number": {
         const match = raw.match(/(?<!\d)(\d+(?:[.,]\d+)?)/);
         if (!match) {
-          errors.push("No number found");
+          // No number found - only error if required
+          if (meta.required) {
+            errors.push("Number input is required");
+          }
           value = null;
         } else {
           value = parseFloat(match[1].replace(",", "."));

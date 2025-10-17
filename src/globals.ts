@@ -6,6 +6,7 @@ import {
   LoggerService,
   LoggerName,
   LoggerNames,
+  defaultLoggerConfig,
 } from "./services/LoggerService";
 
 export let tp: TemplaterApi;
@@ -24,6 +25,9 @@ export function setGlobals(
 
 //TODO: rewrite all devlogging to this loggerService
 export const loggerService = new LoggerService(() => config);
+// Apply default logger configuration
+loggerService.setServiceConfig(defaultLoggerConfig);
+
 export function useLogger(prefix: LoggerName) {
   return loggerService.withPrefix(prefix);
 }
