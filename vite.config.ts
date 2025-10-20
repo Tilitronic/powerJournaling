@@ -12,7 +12,17 @@ export default defineConfig({
     outDir: "dist",
     minify: true,
     rollupOptions: {
-      external: ["fs", "path"],
+      external: [
+        // Only externalize Node.js built-ins - Templater has these
+        "fs",
+        "path",
+        "util",
+        "assert",
+        "constants",
+        "stream",
+        /^node:/, // All node: prefixed modules
+        // Bundle npm packages like lowdb, fs-extra, etc.
+      ],
       // output: {
       //   exports: "default",
       // },

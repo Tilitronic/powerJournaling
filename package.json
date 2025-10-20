@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "asciichart": "^1.5.25",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.2",
     "fs-extra": "^11.3.2",
@@ -13,6 +14,8 @@
     "remark": "^15.0.1",
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
+    "simple-statistics": "^7.8.8",
+    "sparkly": "^6.0.1",
     "typescript": "^5.9.2",
     "unified": "^11.0.5",
     "vite": "^7.1.5"
@@ -31,6 +34,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/asciichart": "^1.5.8",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.20",
     "@types/lodash-es": "^4.17.12",

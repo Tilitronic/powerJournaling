@@ -5,6 +5,7 @@ import { onStart } from "./onStart";
 import { buildDailyReport } from "./reportBuiders/buildDailyReport";
 import { inputCollector } from "./services/InputCollectorService";
 import { PowerJournalConfig } from "./pjconfig";
+import { dbService } from "./services/DbService";
 
 /**
  * Main entry point for running the Power Journal scripts.
@@ -35,12 +36,24 @@ async function runPowerJournal(tp: TemplaterApi, configs: PowerJournalConfig) {
   try {
     collectedInputs = await inputCollector.collectFromYesterday();
     logger.dev("Input collection completed", { collected: collectedInputs });
+
+    // Save collected inputs to database (upsert to prevent duplicates)
+    if (collectedInputs) {
+      for (const [reportType, inputs] of Object.entries(collectedInputs)) {
+        if (inputs && inputs.length > 0) {
+          await dbService.upsertReportInputs(reportType, inputs);
+          logger.info(
+            `Saved ${inputs.length} inputs for ${reportType} to database`
+          );
+        }
+      }
+    }
   } catch (err) {
     logger.error("Error collecting inputs", { error: err });
   }
 
   try {
-    buildDailyReport();
+    await buildDailyReport();
     logger.dev("Daily report built successfully");
   } catch (err) {
     logger.error("Error building daily report", { error: err });

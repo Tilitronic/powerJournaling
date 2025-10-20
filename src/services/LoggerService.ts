@@ -12,6 +12,8 @@ export const LoggerNames = {
   OnStart: "OnStart",
   InputCollector: "InputCollector",
   ValueExtractor: "ValueExtractor",
+  DbService: "DbService",
+  StatisticsService: "StatisticsService",
 } as const;
 
 export type LoggerName = (typeof LoggerNames)[keyof typeof LoggerNames];
@@ -66,6 +68,18 @@ export const defaultLoggerConfig: LoggerConfig = {
     error: true,
   },
   [LoggerNames.ValueExtractor]: {
+    dev: true,
+    info: true,
+    warn: true,
+    error: true,
+  },
+  [LoggerNames.DbService]: {
+    dev: true,
+    info: true,
+    warn: true,
+    error: true,
+  },
+  [LoggerNames.StatisticsService]: {
     dev: true,
     info: true,
     warn: true,
