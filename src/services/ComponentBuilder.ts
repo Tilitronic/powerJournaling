@@ -26,33 +26,35 @@ export class ComponentBuilder {
    * Use for separating subsections WITHIN a component.
    */
   _divider() {
-    this.content.push("***");
+    this.content.push("\n***\n");
     return this;
   }
 
   /**
-   * Add a fancy centered title divider using HTML center tag.
-   * Auto-adjusts to screen width with horizontal rule above/below.
+   * Add a fancy centered title using HTML center tag.
    * @param title - Title text to display
    * @param emoji - Optional emoji to include (default: ⚛︎)
    * @example
-   * _fancyDivider("Wins & Accomplishments", "🏆")
+   * _fancyTitle("Wins & Accomplishments", "🏆")
    * // Produces:
-   * // ---
    * // <center>🏆 Wins & Accomplishments 🏆</center>
-   * // ---
    */
-  _fancyDivider(title?: string, emoji: string = "⚛︎") {
+  _fancyTitle(title?: string, emoji: string = "⚛︎") {
     if (title) {
-      this.content.push("---");
       this.content.push(
         `<center>${emoji} <strong>${title}</strong> ${emoji}</center>`
       );
-      this.content.push("---");
     } else {
       this.content.push("---");
     }
     return this;
+  }
+
+  /**
+   * @deprecated Use _fancyTitle instead
+   */
+  _fancyDivider(title?: string, emoji: string = "⚛︎") {
+    return this._fancyTitle(title, emoji);
   }
 
   /**
@@ -87,12 +89,12 @@ export class ComponentBuilder {
 
   // --- Guidance ---
   /**
-   * Add a guidance callout box. Automatically wraps content in "> [!note] Guidance" syntax.
+   * Add a guidance callout box. Automatically wraps content in "> [!note]- Guidance" syntax (collapsed by default).
    * @param content - The guidance text (can be multiline). If not provided, uses default habit tracking guidance.
    * @param title - Optional custom title (default: "Guidance")
    * @example
    * _guidance("**Stoicism**: Focus on what you can control.\n**Taoist Wu Wei**: Flow like water.")
-   * // Produces: > [!note] Guidance
+   * // Produces: > [!note]- Guidance
    * //           > **Stoicism**: Focus on what you can control.
    * //           > **Taoist Wu Wei**: Flow like water.
    */
@@ -106,7 +108,8 @@ export class ComponentBuilder {
     const lines = guidanceContent.split("\n");
     const formattedLines = lines.map((line) => `> ${line}`);
 
-    const guidanceText = `> [!note] ${title}\n${formattedLines.join("\n")}`;
+    // Use [!note]- to make the callout collapsed by default
+    const guidanceText = `> [!note]- ${title}\n${formattedLines.join("\n")}`;
 
     this.content.push(guidanceText);
     return this;
@@ -215,7 +218,7 @@ export class ComponentBuilder {
   render() {
     const output = tagsService.component.wrap(
       this.componentName,
-      this.content.join("\n\n")
+      this.content.join("\n")
     );
     this.logger.dev("Component rendered", { outputLength: output.length });
     return output;

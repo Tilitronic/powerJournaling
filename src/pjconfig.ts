@@ -26,7 +26,7 @@ export const defaultConfig: PowerJournalConfig = {
   devLogging: true,
   habits: habits,
   wellbeingParameters: wellbeingParameters,
-  devMode: true,
+  devMode: false,
   reportFileExtension: ".pjf.md",
 };
 

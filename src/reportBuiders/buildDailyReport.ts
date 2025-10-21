@@ -34,12 +34,12 @@ export async function buildDailyReport() {
   // =============================================================================
   // 🌅 MORNING SECTION: Set the Day
   // =============================================================================
-  noteFragments.push("---"); // Major section divider
+  noteFragments.push("\n---\n"); // Major section divider
   noteFragments.push("# 🌅 MORNING: Set the Day");
   noteFragments.push(
     "*Win the morning, win the day. Start with intention and clarity.*"
   );
-  noteFragments.push("---"); // Major section divider
+  noteFragments.push("\n---\n"); // Major section divider
 
   const messageYesterday = await messageFromYesterday();
   if (messageYesterday) {
@@ -55,24 +55,24 @@ export async function buildDailyReport() {
   // =============================================================================
   // 📋 DAILY HABITS
   // =============================================================================
-  noteFragments.push("---"); // Major section divider
+  noteFragments.push("\n---\n"); // Major section divider
   noteFragments.push("# 📋 DAILY HABITS");
   noteFragments.push(
     "*Small actions, repeated daily, create remarkable results.*"
   );
-  noteFragments.push("---"); // Major section divider
+  noteFragments.push("\n---\n"); // Major section divider
 
   noteFragments.push(await habitTracking());
 
   // =============================================================================
   // 🌙 EVENING SECTION: Reflect & Close the Day
   // =============================================================================
-  noteFragments.push("---"); // Major section divider
+  noteFragments.push("\n---\n"); // Major section divider
   noteFragments.push("# 🌙 EVENING: Reflect & Close the Day");
   noteFragments.push(
     "*Review your day with honesty and gratitude. Learn, grow, prepare.*"
   );
-  noteFragments.push("---"); // Major section divider
+  noteFragments.push("\n---\n"); // Major section divider
 
   noteFragments.push(accomplishmentsAndObstacles());
   noteFragments.push(attentionAndWillpower());
@@ -89,6 +89,6 @@ export async function buildDailyReport() {
   // =============================================================================
   savingService.write({
     type: "almostDailyReport",
-    data: noteFragments.join("\n\n"),
+    data: noteFragments.join("\n"),
   });
 }

@@ -14,7 +14,7 @@ export function attentionAndWillpower() {
 Track patterns. Design better environments. Restore your willpower.`
   );
 
-  cb._fancyDivider("Attention Reflection", "👁️");
+  cb._fancyTitle("Attention Reflection", "👁️");
 
   cb._md("**What distracted me most today?**");
   cb._text(
@@ -33,7 +33,7 @@ Track patterns. Design better environments. Restore your willpower.`
     "e.g., Quiet office, early morning energy, challenging but doable task"
   );
 
-  cb._fancyDivider("Willpower Reflection", "💪");
+  cb._fancyTitle("Willpower Reflection", "💪");
 
   cb._md("**What was my biggest temptation/willpower challenge?**");
   cb._text(

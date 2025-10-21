@@ -14,7 +14,7 @@ export function accomplishmentsAndObstacles() {
 Celebrate your wins. Learn from your setbacks. Both shape your character.`
   );
 
-  cb._fancyDivider("Wins & Accomplishments", "🏆");
+  cb._fancyTitle("Wins & Accomplishments", "🏆");
 
   cb._md("**Which win am I most proud of today?**");
   cb._text("proudest_win", "", "e.g., Finally finished that difficult task");
@@ -35,7 +35,7 @@ Celebrate your wins. Learn from your setbacks. Both shape your character.`
     "e.g., Self-control: I paused before reacting in anger"
   );
 
-  cb._fancyDivider("Obstacles & Lessons", "🌊");
+  cb._fancyTitle("Obstacles & Lessons", "🌊");
 
   cb._md("**What obstacle or failure did I face today?**");
   cb._text(
