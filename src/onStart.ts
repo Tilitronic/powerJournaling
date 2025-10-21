@@ -8,6 +8,7 @@ import {
 import { savingService } from "./services/SavingService";
 import { dbService } from "./services/DbService";
 import { buildDailyReport } from "./reportBuiders/buildDailyReport";
+import { wellbeingBackfiller } from "./services/WellbeingBackfiller";
 
 const logger = useLogger(LNs.FileService);
 
@@ -57,13 +58,19 @@ export async function onStart() {
       }
     }
 
-    // 4. Save collected inputs to database
+    // 4. Save collected inputs to database (with wellbeing backfilling)
     if (collectedInputs) {
       for (const [reportType, inputs] of Object.entries(collectedInputs)) {
         if (inputs && inputs.length > 0) {
-          await dbService.upsertReportInputs(reportType, inputs);
+          // Backfill wellbeing parameters with periodicity before saving
+          const expandedInputs =
+            await wellbeingBackfiller.backfillPeriodicParameters(inputs);
+
+          await dbService.upsertReportInputs(reportType, expandedInputs);
           logger.info(
-            `Saved ${inputs.length} inputs for ${reportType} to database`
+            `Saved ${expandedInputs.length} inputs (${inputs.length} original + ${
+              expandedInputs.length - inputs.length
+            } backfilled) for ${reportType} to database`
           );
         }
       }

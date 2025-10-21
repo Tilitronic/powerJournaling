@@ -18,6 +18,7 @@ export const wellbeingParameters: WellbeingParameter[] = [
     label: "Relationships",
     info: "Supportive, meaningful social connections. Feeling loved, valued, belonging; giving and receiving support. Close friendships, family bonds, community ties.",
     active: true,
+    periodicity: 2,
   },
   {
     id: "meaning",
@@ -32,9 +33,36 @@ export const wellbeingParameters: WellbeingParameter[] = [
     active: true,
   },
   {
+    id: "sleepQuality",
+    label: "Sleep Quality",
+    info: "How well-rested you feel. Quality of sleep, sufficient hours, feeling refreshed upon waking. Sleep is foundational to physical and mental wellbeing.",
+    active: true,
+  },
+  {
+    id: "embodiment",
+    label: "Embodiment",
+    info: "Body acceptance and feeling at home in your body. Being present in your physical self, body image, self-compassion toward your body, feeling connected rather than disconnected from your physical form.",
+    active: true,
+    periodicity: 3,
+  },
+  {
+    id: "physicalPleasure",
+    label: "Physical Pleasure",
+    info: "Sensory experiences and bodily comfort. Enjoying food, warmth, movement, relaxation. The simple joys of physical existence—a hot shower, soft blanket, delicious meal, or stretching your body.",
+    active: true,
+    periodicity: 2,
+  },
+  {
+    id: "touchAndIntimacy",
+    label: "Touch & Intimacy",
+    info: "Physical affection, connection, and love. Hugs, cuddles, holding hands, sexual intimacy. The warmth and safety of physical closeness with loved ones. Human touch is a fundamental need.",
+    active: true,
+    periodicity: 3,
+  },
+  {
     id: "physicalCondition",
     label: "Physical Condition",
-    info: "Your bodily health: exercise, sleep quality, nutrition; energy levels and how physically capable you feel.",
+    info: "Your bodily health: exercise, nutrition, energy levels and how physically capable you feel. General fitness and vitality.",
     active: true,
   },
   {
@@ -48,11 +76,13 @@ export const wellbeingParameters: WellbeingParameter[] = [
     label: "Environment",
     info: "Living and working in spaces that feel safe, comfortable, and supportive of wellbeing. Includes access to nature, orderliness, and resources that help you thrive.",
     active: true,
+    periodicity: 3,
   },
   {
     id: "economicSecurity",
     label: "Economic Security",
     info: "Having financial stability, freedom from chronic money stress, and satisfaction with work. Economic security supports autonomy and reduces background stress that erodes wellbeing.",
     active: true,
+    periodicity: 10,
   },
 ] as const;

@@ -4,62 +4,76 @@ export function accomplishmentsAndObstacles() {
   const componentName = "accomplishmentsAndObstacles";
   const cb = new ComponentBuilder(componentName);
 
-  cb._md("## 📊 Today's Wins & Lessons (⭐ RECOMMENDED - 3-5 min)");
+  cb._md("## 📊 Wins & Obstacles (⭐ RECOMMENDED - 4-6 min)");
 
   cb._guidance(
-    `**Progress Principle** — tracking wins boosts motivation. Reframing setbacks builds resilience.
-**Stoicism** — focus on what you CONTROLLED—your effort, not the outcome. "The obstacle is the way."
-**Growth Mindset** — reflecting on WHY you succeeded or failed builds self-awareness.
+    `**The Stoic Path** — "The obstacle is the way." Every setback is training.
 
-Celebrate your wins. Learn from your setbacks. Both shape your character.`
+_"The impediment to action advances action. What stands in the way becomes the way."_ — Marcus Aurelius
+
+**Three Questions for Obstacles:**
+1. **What happened?** (The external event—not in your control)
+2. **How did I respond?** (Your reaction—entirely in your control)
+3. **How will I overcome this?** (Your action plan—growth through adversity)
+
+**Atomic Habits:** Every obstacle reveals a system flaw. Fix the system, not just the symptom.
+**Growth Mindset:** You haven't mastered this *yet*. Struggle = growth happening.
+
+Remember: You control your **effort, attitude, and response**—not outcomes.`
   );
 
   cb._fancyTitle("Wins & Accomplishments", "🏆");
 
-  cb._md("**Which win am I most proud of today?**");
-  cb._text("proudest_win", "", "e.g., Finally finished that difficult task");
+  cb._md("**My proudest win today** (no matter how small)");
+  cb._text("proudest_win", "", "e.g., Stayed calm when criticized");
 
-  cb._md("**Why did this matter to me?** (Connect to your values)");
+  cb._md("**What effort/virtue made this possible?**");
   cb._text(
-    "why_it_mattered",
+    "what_i_controlled",
     "",
-    "e.g., It showed I can push through resistance"
+    "e.g., I practiced patience, took 3 deep breaths first"
   );
 
-  cb._md(
-    "**What virtue did I practice today?** (courage, wisdom, justice, self-control)"
-  );
+  cb._fancyTitle("Obstacles & The Way Forward", "⚔️");
+
+  cb._md("**The obstacle I faced** (what happened—the external event)");
   cb._text(
-    "virtue_practiced",
+    "obstacle_event",
     "",
-    "e.g., Self-control: I paused before reacting in anger"
+    "e.g., My proposal was rejected; Coworker criticized me harshly"
   );
 
-  cb._fancyTitle("Obstacles & Lessons", "🌊");
-
-  cb._md("**What obstacle or failure did I face today?**");
+  cb._md("**My response** (How did I react? Acceptance or resistance?)");
   cb._text(
-    "obstacle_today",
+    "my_response",
     "",
-    "e.g., Procrastinated for 3 hours, missed deadline"
+    "e.g., Initially angry, then realized it's not personal; Felt defensive"
   );
 
-  cb._md("**How did I respond?** (With resistance or acceptance?)");
-  cb._text(
-    "obstacle_response",
-    "",
-    "e.g., Got frustrated, then took a break to reset"
-  );
-
-  cb._md("**What can this teach me?** (The hidden opportunity)");
+  cb._md("**The lesson** (What is this obstacle teaching me?)");
   cb._text(
     "obstacle_lesson",
     "",
-    "e.g., I need better environment design to avoid distractions"
+    "e.g., I need to separate my ego from my work; I'm too attached to approval"
+  );
+
+  cb._md("**How I'll use this obstacle** (Turn adversity into advantage)");
+  cb._text(
+    "obstacle_advantage",
+    "",
+    "e.g., Revise proposal with feedback—make it stronger; Practice not seeking validation"
+  );
+
+  cb._md("**My implementation intention** (If this happens again, I will...)");
+  cb._md("*If [OBSTACLE], then I will [RESPONSE]*");
+  cb._text(
+    "if_then_plan",
+    "",
+    "e.g., If criticized, I'll pause 10 seconds, say 'thank you,' then decide if it's useful"
   );
 
   cb._md(
-    '> **Stoic Reminder**: _"The impediment to action advances action. What stands in the way becomes the way."_ — Marcus Aurelius'
+    '> **Stoic Wisdom**: This obstacle is not blocking your path—it IS the path. It\'s revealing where you need to grow.'
   );
 
   return cb.render();

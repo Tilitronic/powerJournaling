@@ -74,5 +74,11 @@ Every obstacle contains an opportunity:
     "e.g., 'I will practice patience by pausing 3 seconds before responding'"
   );
 
+  cb._boolean(
+    "morning_reflection_done",
+    "I have completed this morning reflection",
+    false
+  );
+
   return cb.render();
 }

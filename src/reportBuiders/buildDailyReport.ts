@@ -4,7 +4,6 @@ import {
   // Morning components
   morningReflection,
   negativeVisualization,
-  mementoMori,
   priorityPlanning,
   voluntaryDiscomfort,
   // Throughout day
@@ -22,6 +21,7 @@ import {
   messageForTomorrow,
 } from "src/components/dailyReport";
 import { savingService } from "src/services/SavingService";
+import { componentScheduler } from "src/services/ComponentScheduler";
 
 export async function buildDailyReport() {
   const noteFragments = [];
@@ -47,10 +47,27 @@ export async function buildDailyReport() {
   }
 
   noteFragments.push(morningReflection());
-  noteFragments.push(negativeVisualization());
-  noteFragments.push(mementoMori());
+
+  // Negative Visualization: Mon/Wed/Fri, or if shown yesterday but not completed
+  if (
+    await componentScheduler.shouldShowComponent("negative_visualization_done", [
+      1, 3, 5,
+    ])
+  ) {
+    noteFragments.push(negativeVisualization());
+  }
+
+  // mementoMori is now integrated into priorityPlanning
   noteFragments.push(priorityPlanning());
-  noteFragments.push(voluntaryDiscomfort());
+
+  // Voluntary Discomfort: Mon/Wed/Fri, or if shown yesterday but not completed
+  if (
+    await componentScheduler.shouldShowComponent("voluntary_discomfort_done", [
+      1, 3, 5,
+    ])
+  ) {
+    noteFragments.push(voluntaryDiscomfort());
+  }
 
   // =============================================================================
   // 📋 DAILY HABITS
@@ -77,7 +94,16 @@ export async function buildDailyReport() {
   noteFragments.push(accomplishmentsAndObstacles());
   noteFragments.push(attentionAndWillpower());
   noteFragments.push(gratitudeAndSavoring());
-  noteFragments.push(mindfulMoment());
+
+  // Mindful Moment: Mon/Wed/Fri, or if shown yesterday but not completed
+  if (
+    await componentScheduler.shouldShowComponent("mindful_pause_taken", [
+      1, 3, 5,
+    ])
+  ) {
+    noteFragments.push(mindfulMoment());
+  }
+
   noteFragments.push(emotionAwareness());
   noteFragments.push(await permaPlus());
   noteFragments.push(eveningReflection());

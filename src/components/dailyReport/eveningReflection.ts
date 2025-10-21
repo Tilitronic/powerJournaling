@@ -56,6 +56,12 @@ Then: learn if needed. Release what wasn't yours. Sleep in peace.`,
     "Even 1% improvement compounds. e.g., More patient, better listener, clearer thinking"
   );
 
+  cb._boolean(
+    "evening_reflection_done",
+    "I have completed this evening reflection",
+    false
+  );
+
   cb._md(
     '> _"When you lie down, review your day. What did I do well? What could I improve? What did I leave undone?"_ — Epictetus'
   );

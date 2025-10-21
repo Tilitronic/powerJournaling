@@ -4,7 +4,7 @@ export function messageForTomorrow() {
   const componentName = "messageForTomorrow";
   const cb = new ComponentBuilder(componentName);
 
-  cb._md("## 💌 Message & Intention for Tomorrow (� CORE - 2 min)");
+  cb._md("## 💌 Message & Intention for Tomorrow (📌 CORE - 2 min)");
 
   cb._guidance(
     `Set yourself up for success tomorrow with clarity and encouragement.

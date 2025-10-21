@@ -2,6 +2,80 @@ import { config } from "src/globals";
 import { ComponentBuilder } from "src/services/ComponentBuilder";
 import { dbService } from "src/services/DbService";
 import { statisticsService } from "src/services/StatisticsService";
+import { Habit, PeriodicityUnit } from "src/types/Habits";
+
+/**
+ * Get the start date of the current period for a habit
+ */
+function getPeriodStartDate(habit: Habit): string {
+  const now = new Date();
+
+  switch (habit.periodicityUnit) {
+    case PeriodicityUnit.Day:
+      // For daily habits, period is just today
+      return now.toISOString().split("T")[0];
+
+    case PeriodicityUnit.Week:
+      // Week starts on Monday
+      const dayOfWeek = now.getDay();
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+      return monday.toISOString().split("T")[0];
+
+    case PeriodicityUnit.Month:
+      // Month starts on the 1st
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}-01`;
+
+    case PeriodicityUnit.Quarter:
+      // Quarter starts on Jan 1, Apr 1, Jul 1, or Oct 1
+      const quarter = Math.floor(now.getMonth() / 3);
+      const quarterStartMonth = quarter * 3 + 1;
+      return `${now.getFullYear()}-${String(quarterStartMonth).padStart(
+        2,
+        "0"
+      )}-01`;
+
+    case PeriodicityUnit.Year:
+      // Year starts on Jan 1
+      return `${now.getFullYear()}-01-01`;
+
+    case PeriodicityUnit.Decade:
+      // Decade starts on year ending in 0 (e.g., 2020, 2030)
+      const decadeStartYear = Math.floor(now.getFullYear() / 10) * 10;
+      return `${decadeStartYear}-01-01`;
+
+    default:
+      return now.toISOString().split("T")[0];
+  }
+}
+
+/**
+ * Calculate how many times a habit has been completed in the current period
+ */
+async function getHabitProgressInPeriod(habit: Habit): Promise<number> {
+  const periodStart = getPeriodStartDate(habit);
+
+  // Get all inputs for this habit from the database
+  const allInputs = await dbService.getInputsByName(
+    "almostDailyReport",
+    habit.id
+  );
+
+  // Filter inputs that are within the current period
+  const periodInputs = allInputs.filter((input) => {
+    return input.reportDate && input.reportDate >= periodStart;
+  });
+
+  // Count how many times the habit was checked (value === true)
+  const completionCount = periodInputs.filter(
+    (input) => input.value === true
+  ).length;
+
+  return completionCount;
+}
 
 export async function habitTracking() {
   const componentName = "habitTracking";
@@ -11,8 +85,24 @@ export async function habitTracking() {
   // Get active habits
   const activeHabits = habits.filter((h) => h.active);
 
-  // Fetch historical data for all habits
-  const habitIds = activeHabits.map((h) => h.id);
+  // Calculate progress for each habit and filter out completed non-permanent habits
+  const habitProgress = await Promise.all(
+    activeHabits.map(async (habit) => {
+      const completedCount = await getHabitProgressInPeriod(habit);
+      return {
+        habit,
+        completedCount,
+        isComplete: completedCount >= habit.targetCount,
+        shouldShow: habit.permanent || completedCount < habit.targetCount,
+      };
+    })
+  );
+
+  // Filter habits to show (not completed OR permanent)
+  const habitsToShow = habitProgress.filter((hp) => hp.shouldShow);
+
+  // Fetch historical data for statistics (only for habits we're showing)
+  const habitIds = habitsToShow.map((hp) => hp.habit.id);
   let showStatistics = false;
 
   try {
@@ -28,8 +118,8 @@ export async function habitTracking() {
     if (showStatistics) {
       cb._md("## 📊 Habit Statistics (Last 10 Reports)");
 
-      // Show statistics for each habit that has data
-      for (const habit of activeHabits) {
+      // Show statistics for each habit that we're displaying today
+      for (const { habit } of habitsToShow) {
         const habitData = allHabitData.filter(
           (input) => input.inputName === habit.id
         );
@@ -73,17 +163,29 @@ export async function habitTracking() {
 **Check when complete:**`
   );
 
-  activeHabits.forEach((habit) => {
-    cb._boolean(habit.id, habit.label);
-    cb._md(`*Cue*: ${habit.cue} · *Reward*: ${habit.reward}`);
-  });
+  if (habitsToShow.length > 0) {
+    habitsToShow.forEach(({ habit, completedCount }) => {
+      // Generate period label with proper singular/plural
+      let periodLabel: string;
+      if (habit.periodicityMultiplier === 1) {
+        periodLabel = habit.periodicityUnit;
+      } else {
+        // Add 's' for plural (day→days, week→weeks, etc.)
+        periodLabel = `${habit.periodicityMultiplier} ${habit.periodicityUnit}s`;
+      }
 
-  if (activeHabits.length > 0) {
+      // Show progress inline: "Exercise (2/5 per week)"
+      const progressText = `${habit.label} (${completedCount}/${habit.targetCount} per ${periodLabel})`;
+
+      cb._boolean(habit.id, progressText);
+      cb._md(`*Cue*: ${habit.cue} · *Reward*: ${habit.reward}`);
+    });
+
     cb._md(
       "> **Wisdom** — missing once is an accident. Missing twice is the start of a pattern. Return gently."
     );
   } else {
-    cb._md("*No active habits configured. Add habits in your config file.*");
+    cb._md("*🎉 All habits completed for this period! Well done!*");
   }
 
   return cb.render();

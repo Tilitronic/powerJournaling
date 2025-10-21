@@ -1,4 +1,5 @@
-import { Habit } from "./types";
+import { Habit, PeriodicityUnit as PU } from "./types";
+
 export const habits: Habit[] = [
   {
     id: "dayPlanning",
@@ -7,17 +8,28 @@ export const habits: Habit[] = [
     reward: "More productive and organized day",
     targetCount: 1,
     periodicityMultiplier: 1,
-    periodicityUnit: "day",
+    periodicityUnit: PU.Day,
     active: true,
   },
   {
     id: "exercise",
     label: "Exercise",
-    cue: "After work or in the morning",
+    cue: "Any suitable time during the day",
     reward: "Better health, more energy, and improved mood",
+    targetCount: 5,
+    periodicityMultiplier: 1,
+    periodicityUnit: PU.Week,
+    active: true,
+    permanent: true,
+  },
+  {
+    id: "morningPhysicalWarmUp",
+    label: "Morning Physical Warm-Up",
+    cue: "After waking up",
+    reward: "Increased energy and readiness for the day",
     targetCount: 1,
     periodicityMultiplier: 1,
-    periodicityUnit: "day",
+    periodicityUnit: PU.Day,
     active: true,
   },
   {
@@ -27,17 +39,28 @@ export const habits: Habit[] = [
     reward: "Relaxation, joy, and stress relief",
     targetCount: 1,
     periodicityMultiplier: 1,
-    periodicityUnit: "day",
+    periodicityUnit: PU.Day,
     active: true,
   },
   {
     id: "fpf",
     label: "FPF",
-    cue: "At a consistent scheduled time",
-    reward: "Sense of progress and satisfaction",
-    targetCount: 1,
+    cue: "At free from work personal time",
+    reward: "Better focus and increasing ability to feel joy",
+    targetCount: 10,
+    periodicityMultiplier: 7,
+    periodicityUnit: PU.Day,
+    active: true,
+  },
+  {
+    id: "poetry",
+    label: "Spend time with poetry",
+    cue: "At leisure time",
+    reward:
+      "Happiness and healthy feelings expression from engaging with poetry",
+    targetCount: 3,
     periodicityMultiplier: 1,
-    periodicityUnit: "day",
+    periodicityUnit: PU.Month,
     active: true,
   },
 ] as const;

@@ -2,16 +2,73 @@ import { config } from "src/globals";
 import { ComponentBuilder } from "src/services/ComponentBuilder";
 import { dbService } from "src/services/DbService";
 import { statisticsService } from "src/services/StatisticsService";
+import { WellbeingParameter } from "src/types";
+
+/**
+ * Get today's date in YYYY-MM-DD format
+ */
+function getTodayDate(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
+/**
+ * Get date N days ago in YYYY-MM-DD format
+ */
+function getDateDaysAgo(daysAgo: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  return date.toISOString().split("T")[0];
+}
+
+/**
+ * Calculate day number from a fixed epoch (e.g., 2020-01-01)
+ */
+function getDayNumber(dateString: string): number {
+  const epoch = new Date("2020-01-01");
+  const date = new Date(dateString);
+  const diffTime = date.getTime() - epoch.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+}
+
+/**
+ * Check if a parameter should be shown today based on its periodicity
+ */
+function shouldShowParameter(param: WellbeingParameter): boolean {
+  // If no periodicity, show daily
+  if (!param.periodicity) {
+    return true;
+  }
+
+  // Calculate if today is the day to show this parameter
+  const today = getTodayDate();
+  const dayNumber = getDayNumber(today);
+  
+  // Show if dayNumber is divisible by periodicity
+  return dayNumber % param.periodicity === 0;
+}
 
 export async function permaPlus() {
   const componentName = "permaPlus";
   const cb = new ComponentBuilder(componentName);
 
   // Get active wellbeing parameters from config
-  const parameters = config.wellbeingParameters.filter((p) => p.active);
+  const allParameters = config.wellbeingParameters.filter((p) => p.active);
+  
+  // Filter to only show parameters that should appear today
+  const parametersToShow = allParameters.filter(shouldShowParameter);
+  
+  // Store metadata about periodicity for later use when saving
+  const periodicityMap = new Map<string, number>();
+  parametersToShow.forEach((param) => {
+    if (param.periodicity) {
+      periodicityMap.set(param.id, param.periodicity);
+    }
+  });
 
   // Fetch historical data for all parameters (last 20 FILLED reports, not calendar days)
-  const parameterIds = parameters.map((p) => p.id);
+  // Use ALL parameters for statistics, not just ones shown today
+  const parameterIds = allParameters.map((p) => p.id);
   let historicalData: Map<string, number[]> = new Map();
   let last5DayAverages: Map<string, number> = new Map();
   let last20ReportAverages: Map<string, number> = new Map();
@@ -37,7 +94,7 @@ export async function permaPlus() {
     }
 
     // Group data by parameter
-    parameters.forEach((param) => {
+    allParameters.forEach((param) => {
       const paramData = allData
         .filter((input) => input.inputName === param.id)
         .map((input) => {
@@ -65,10 +122,20 @@ export async function permaPlus() {
   }
 
   // Header and guidance
-  cb._md("## 💚 PERMA+4 Wellbeing Check (📌 CORE - 1-2 min)");
+  cb._md("## 💚 PERMA+8 Wellbeing Check (📌 CORE - 2-3 min)");
 
   cb._guidance(
-    `**PERMA+4 Model**: Extended wellbeing framework with 9 dimensions (Positive Emotions, Engagement, Relationships, Meaning, Accomplishment, Physical Condition, Mindset, Environment, Economic Security).
+    `**PERMA+8 Model**: Comprehensive wellbeing framework covering 13 dimensions:
+
+**Core PERMA:**
+- Positive Emotions, Engagement, Relationships, Meaning, Accomplishment
+
+**Body & Physical:**
+- Sleep Quality, Embodiment (body acceptance), Physical Pleasure, Touch & Intimacy, Physical Condition
+
+**Life Context:**
+- Mindset, Environment, Economic Security
+
 Rate honestly—awareness is the first step to change.
 
 **Rate each dimension** (3 = Great, 2 = Adequate, 1 = Struggling):`
@@ -81,13 +148,18 @@ Rate honestly—awareness is the first step to change.
     { label: "1 - Struggling", value: "1" },
   ];
 
-  // For each parameter, create a section with description, 5-report average, and rating
-  parameters.forEach((param) => {
+  // For each parameter TO SHOW TODAY, create a section with description, 5-report average, and rating
+  parametersToShow.forEach((param) => {
     const avg5 = last5DayAverages.get(param.id);
     const avgDisplay =
       avg5 !== undefined ? ` (last 5 reports: ${avg5.toFixed(1)})` : "";
+    
+    // Add periodicity info if applicable
+    const periodicityNote = param.periodicity 
+      ? ` *(shown every ${param.periodicity} days)*`
+      : "";
 
-    cb._md(`### ${param.label}${avgDisplay}`);
+    cb._md(`### ${param.label}${avgDisplay}${periodicityNote}`);
     cb._md(`*${param.info}*`);
 
     // Use multicheckbox with singleChoice for radio button behavior
@@ -125,7 +197,7 @@ Rate honestly—awareness is the first step to change.
       }
 
       // Find areas needing attention and areas of strength
-      const sortedByAverage = parameters
+      const sortedByAverage = allParameters
         .map((param) => ({
           param,
           avg: last20ReportAverages.get(param.id) || 0,
@@ -160,7 +232,7 @@ Rate honestly—awareness is the first step to change.
 
         // Show compact trends for each dimension
         cb._md(`**Trends (last ${dateRange.reportCount} reports):**`);
-        parameters.forEach((param) => {
+        allParameters.forEach((param) => {
           const data = historicalData.get(param.id);
           if (data && data.length >= 3) {
             const avg = last20ReportAverages.get(param.id) || 0;
