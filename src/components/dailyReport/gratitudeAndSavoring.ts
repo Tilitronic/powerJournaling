@@ -17,50 +17,41 @@ Savor simple pleasures: friendship, beauty, learning, nature. Your role matters.
   cb._md("### Three Good Things Today");
 
   // First good thing
-  cb._md("**1. What happened:**");
-  cb._text(
-    "gratitude_1_what",
-    "",
-    "e.g., Had a great conversation with a friend"
+  cb._inputLabel(
+    "1. Good Thing #1",
+    "*What happened? Why was it good? What was your role?*"
   );
-
-  cb._md("**Why it was good:**");
-  cb._text("gratitude_1_why", "", "e.g., Felt understood and connected");
-
-  cb._md("**My role in making it happen:**");
-  cb._text(
-    "gratitude_1_role",
+  cb._richText(
+    "gratitude_1",
     "",
-    "e.g., I reached out and asked how they were doing"
+    "e.g., Had a great conversation with a friend. Felt understood and connected. I reached out and asked how they were doing."
   );
 
   cb._divider();
 
   // Second good thing
-  cb._md("**2. What happened:**");
-  cb._text("gratitude_2_what", "", "e.g., Enjoyed a beautiful sunset");
-
-  cb._md("**Why it was good:**");
-  cb._text("gratitude_2_why", "", "e.g., Felt peaceful and present");
-
-  cb._md("**My role in making it happen:**");
-  cb._text(
-    "gratitude_2_role",
+  cb._inputLabel(
+    "2. Good Thing #2",
+    "*What happened? Why was it good? What was your role?*"
+  );
+  cb._richText(
+    "gratitude_2",
     "",
-    "e.g., I paused my work to step outside and notice it"
+    "e.g., Enjoyed a beautiful sunset. Felt peaceful and present. I paused my work to step outside and notice it."
   );
 
   cb._divider();
 
   // Third good thing
-  cb._md("**3. What happened:**");
-  cb._text("gratitude_3_what", "", "e.g., Made progress on a difficult task");
-
-  cb._md("**Why it was good:**");
-  cb._text("gratitude_3_why", "", "e.g., Felt capable and proud of my effort");
-
-  cb._md("**My role in making it happen:**");
-  cb._text("gratitude_3_role", "", "e.g., I stayed focused and didn't give up");
+  cb._inputLabel(
+    "3. Good Thing #3",
+    "*What happened? Why was it good? What was your role?*"
+  );
+  cb._richText(
+    "gratitude_3",
+    "",
+    "e.g., Made progress on a difficult task. Felt capable and proud of my effort. I stayed focused and didn't give up."
+  );
 
   cb._md(
     "> **Practice** — before sleep, briefly imagine losing one thing you're grateful for. Then appreciate that you still have it."

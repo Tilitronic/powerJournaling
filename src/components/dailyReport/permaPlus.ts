@@ -43,7 +43,7 @@ function shouldShowParameter(param: WellbeingParameter): boolean {
   // Calculate if today is the day to show this parameter
   const today = getTodayDate();
   const dayNumber = getDayNumber(today);
-  
+
   // Show if dayNumber is divisible by periodicity
   return dayNumber % param.periodicity === 0;
 }
@@ -54,10 +54,10 @@ export async function permaPlus() {
 
   // Get active wellbeing parameters from config
   const allParameters = config.wellbeingParameters.filter((p) => p.active);
-  
+
   // Filter to only show parameters that should appear today
   const parametersToShow = allParameters.filter(shouldShowParameter);
-  
+
   // Store metadata about periodicity for later use when saving
   const periodicityMap = new Map<string, number>();
   parametersToShow.forEach((param) => {
@@ -153,9 +153,9 @@ Rate honestly—awareness is the first step to change.
     const avg5 = last5DayAverages.get(param.id);
     const avgDisplay =
       avg5 !== undefined ? ` (last 5 reports: ${avg5.toFixed(1)})` : "";
-    
+
     // Add periodicity info if applicable
-    const periodicityNote = param.periodicity 
+    const periodicityNote = param.periodicity
       ? ` *(shown every ${param.periodicity} days)*`
       : "";
 
@@ -253,7 +253,8 @@ Rate honestly—awareness is the first step to change.
   }
 
   cb._divider();
-  cb._md("**Quick Reflection**: Which area needs attention tomorrow?");
+
+  cb._inputLabel("Quick Reflection", "Which area needs attention tomorrow?");
   cb._text(
     "perma_focus_tomorrow",
     "",

@@ -37,7 +37,7 @@ _"Set aside a certain number of days to be content with little and practice pove
     "Stoic Resilience Training"
   );
 
-  cb._md("**Today's Voluntary Discomfort** (choose ONE):");
+  cb._inputLabel("Today's Voluntary Discomfort", "(choose ONE)");
   cb._md(
     "- **Physical** — cold shower (30-60 sec), skip dessert, walk instead of drive"
   );
@@ -49,7 +49,10 @@ _"Set aside a certain number of days to be content with little and practice pove
   );
   cb._md("- **Environmental** — sit on floor, less heat/AC, simpler meal");
 
-  cb._md("**Your choice** (be specific about what, when, and for how long):");
+  cb._inputLabel(
+    "Your choice",
+    "(be specific about what, when, and for how long)"
+  );
   cb._text(
     "voluntary_discomfort_choice",
     "",

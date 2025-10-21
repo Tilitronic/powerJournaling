@@ -30,8 +30,9 @@ _"You could leave life right now. Let that determine what you do and say and thi
     "Memento Mori + Implementation Intentions"
   );
 
-  cb._md(
-    '**Death Reflection:** "If today were my last day, which pillar needs my attention most?"'
+  cb._inputLabel(
+    "Death Reflection:",
+    '"If today were my last day, which pillar needs my attention most?"'
   );
   cb._text(
     "priority_pillar",
@@ -39,26 +40,14 @@ _"You could leave life right now. Let that determine what you do and say and thi
     "e.g., 'Relationships - my family needs more of my presence and love'"
   );
 
-  cb._md("**My #1 Priority Today** (the ONE thing that matters most)");
-  cb._text(
-    "priority_today",
-    "",
-    "e.g., 'Call mom and have a real conversation'"
+  cb._inputLabel(
+    "My #1 Priority Today",
+    "*What is the ONE thing that matters most? When & where? If-then plan for obstacles?*"
   );
-
-  cb._md("**When & Where** (be specific)");
   cb._text(
-    "when_where",
+    "priority_plan",
     "",
-    "e.g., 'At 7 PM after dinner, sitting in the quiet room with no distractions'"
-  );
-
-  cb._md("**If-Then Plan** (prepare for obstacles)");
-  cb._md("*If [OBSTACLE], then I will [SOLUTION]*");
-  cb._text(
-    "obstacle_plan",
-    "",
-    "e.g., 'If I feel awkward opening up, I'll remember she won't be here forever'"
+    "e.g., Call mom and have a real conversation. At 7 PM after dinner, sitting in the quiet room with no distractions. If I feel awkward opening up, I'll remember she won't be here forever."
   );
 
   return cb.render();

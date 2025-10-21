@@ -16,27 +16,29 @@ No judgment—just awareness and learning.`
 
   cb._md("### Today's Emotional Landscape");
 
-  cb._md("**What was the strongest emotion I felt today?**");
+  cb._inputLabel("What was the strongest emotion I felt today?");
   cb._text("strongest_emotion", "", "e.g., Frustration, joy, anxiety, pride");
 
-  cb._md("**What triggered it?**");
+  cb._inputLabel("What triggered it?");
   cb._text(
     "emotion_trigger",
     "",
     "e.g., Criticism from colleague, completing a goal"
   );
 
-  cb._md("**How did I respond?** (What did I do/say?)");
+  cb._inputLabel("How did I respond?", "(What did I do/say?)");
   cb._text("emotion_response", "", "e.g., Snapped back, withdrew, celebrated");
 
-  cb._md("**On reflection, was this in my control or outside my control?**");
+  cb._inputLabel(
+    "On reflection, was this in my control or outside my control?"
+  );
   cb._text(
     "emotion_control_assessment",
     "",
     "e.g., The trigger was outside; my response was in my control"
   );
 
-  cb._md("**What would my 'wise self' do next time?**");
+  cb._inputLabel("What would my 'wise self' do next time?");
   cb._text(
     "emotion_wise_response",
     "",

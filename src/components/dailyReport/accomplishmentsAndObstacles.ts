@@ -24,48 +24,32 @@ Remember: You control your **effort, attitude, and response**—not outcomes.`
 
   cb._fancyTitle("Wins & Accomplishments", "🏆");
 
-  cb._md("**My proudest win today** (no matter how small)");
-  cb._text("proudest_win", "", "e.g., Stayed calm when criticized");
-
-  cb._md("**What effort/virtue made this possible?**");
+  cb._inputLabel(
+    "My Win Today",
+    "*What was my proudest accomplishment? What effort/virtue made it possible?*"
+  );
   cb._text(
-    "what_i_controlled",
+    "wins_combined",
     "",
-    "e.g., I practiced patience, took 3 deep breaths first"
+    "e.g., Stayed calm when criticized. I practiced patience by taking 3 deep breaths first and remembering it's not personal."
   );
 
   cb._fancyTitle("Obstacles & The Way Forward", "⚔️");
 
-  cb._md("**The obstacle I faced** (what happened—the external event)");
+  cb._inputLabel(
+    "My Obstacle & Learning",
+    "*What happened? How did I respond? What did I learn? How will I use this?*"
+  );
   cb._text(
-    "obstacle_event",
+    "obstacle_combined",
     "",
-    "e.g., My proposal was rejected; Coworker criticized me harshly"
+    "e.g., My proposal was rejected. Initially angry, then realized it's not personal. Learned I'm too attached to approval. Will practice not seeking validation and revise with feedback to make it stronger."
   );
 
-  cb._md("**My response** (How did I react? Acceptance or resistance?)");
-  cb._text(
-    "my_response",
-    "",
-    "e.g., Initially angry, then realized it's not personal; Felt defensive"
+  cb._inputLabel(
+    "My Implementation Intention",
+    "(If this happens again, I will...) *If [OBSTACLE], then I will [RESPONSE]*"
   );
-
-  cb._md("**The lesson** (What is this obstacle teaching me?)");
-  cb._text(
-    "obstacle_lesson",
-    "",
-    "e.g., I need to separate my ego from my work; I'm too attached to approval"
-  );
-
-  cb._md("**How I'll use this obstacle** (Turn adversity into advantage)");
-  cb._text(
-    "obstacle_advantage",
-    "",
-    "e.g., Revise proposal with feedback—make it stronger; Practice not seeking validation"
-  );
-
-  cb._md("**My implementation intention** (If this happens again, I will...)");
-  cb._md("*If [OBSTACLE], then I will [RESPONSE]*");
   cb._text(
     "if_then_plan",
     "",
@@ -73,7 +57,7 @@ Remember: You control your **effort, attitude, and response**—not outcomes.`
   );
 
   cb._md(
-    '> **Stoic Wisdom**: This obstacle is not blocking your path—it IS the path. It\'s revealing where you need to grow.'
+    "> **Stoic Wisdom**: This obstacle is not blocking your path—it IS the path. It's revealing where you need to grow."
   );
 
   return cb.render();

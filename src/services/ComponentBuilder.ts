@@ -112,12 +112,31 @@ export class ComponentBuilder {
     const guidanceText = `> [!note]- ${title}\n${formattedLines.join("\n")}`;
 
     this.content.push(guidanceText);
+    this.content.push("");
     return this;
   }
 
   _input(opts: CreateInputOptions) {
     const optsWithComponent = { ...opts, componentName: this.componentName };
     this.content.push(inputCreator.createInput(optsWithComponent));
+    return this;
+  }
+
+  /**
+   * Add an input description/label with proper formatting.
+   * Automatically adds a blank line before the description to prevent markdown rendering issues.
+   * @param name - The main question/label (will be bold)
+   * @param description - Optional additional description (can be any markdown, e.g., "(Flow state moments)" or "*Environment, time, task type*")
+   * @example
+   * _inputLabel("When was I most focused?", "(Flow state moments)")
+   * // Produces:
+   * //
+   * // [blank line added here automatically]
+   * // **When was I most focused?** (Flow state moments)
+   */
+  _inputLabel(name: string, optionalText?: string) {
+    const label = optionalText ? `**${name}** ${optionalText}` : `**${name}**`;
+    this.content.push(label);
     return this;
   }
 
@@ -131,6 +150,7 @@ export class ComponentBuilder {
       placeholder,
     });
     this.content.push(value);
+    this.content.push("");
     return this;
   }
 

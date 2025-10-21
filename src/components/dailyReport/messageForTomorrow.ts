@@ -15,10 +15,10 @@ export function messageForTomorrow() {
 Keep it short and meaningful. Your future self will thank you. �`
   );
 
-  cb._md("**Tomorrow's #1 Priority**");
+  cb._inputLabel("Tomorrow's #1 Priority");
   cb._text("tomorrow_priority");
 
-  cb._md("**Message for Tomorrow**");
+  cb._inputLabel("Message for Tomorrow");
   cb._richText("message_for_tomorrow");
 
   return cb.render();

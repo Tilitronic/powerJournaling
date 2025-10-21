@@ -35,8 +35,10 @@ Then: learn if needed. Release what wasn't yours. Sleep in peace.`,
     "Stoic Review"
   );
 
-  cb._md("**The Stoic Evening Question:**");
-  cb._md("_Did I do my best with what was in my control today?_");
+  cb._inputLabel(
+    "The Stoic Evening Question:",
+    "_Did I do my best with what was in my control today?_"
+  );
 
   cb._multiCheckboxSC(
     "stoic_evening_reflection",
@@ -49,11 +51,14 @@ Then: learn if needed. Release what wasn't yours. Sleep in peace.`,
     false
   );
 
-  cb._md("**What's one thing I'm better at today than yesterday?**");
+  cb._inputLabel(
+    "What's one thing I'm better at today than yesterday?",
+    "Even 1% improvement compounds."
+  );
   cb._text(
     "daily_improvement",
     "",
-    "Even 1% improvement compounds. e.g., More patient, better listener, clearer thinking"
+    "e.g., More patient, better listener, clearer thinking"
   );
 
   cb._boolean(

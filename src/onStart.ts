@@ -68,7 +68,9 @@ export async function onStart() {
 
           await dbService.upsertReportInputs(reportType, expandedInputs);
           logger.info(
-            `Saved ${expandedInputs.length} inputs (${inputs.length} original + ${
+            `Saved ${expandedInputs.length} inputs (${
+              inputs.length
+            } original + ${
               expandedInputs.length - inputs.length
             } backfilled) for ${reportType} to database`
           );

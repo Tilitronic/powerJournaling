@@ -165,19 +165,33 @@ export async function habitTracking() {
 
   if (habitsToShow.length > 0) {
     habitsToShow.forEach(({ habit, completedCount }) => {
-      // Generate period label with proper singular/plural
-      let periodLabel: string;
-      if (habit.periodicityMultiplier === 1) {
-        periodLabel = habit.periodicityUnit;
+      // Check if this is a simple daily habit (1 per day)
+      const isSimpleDaily =
+        habit.targetCount === 1 &&
+        habit.periodicityMultiplier === 1 &&
+        habit.periodicityUnit === PeriodicityUnit.Day;
+
+      let habitLabel: string;
+
+      if (isSimpleDaily) {
+        // For simple daily habits, just show the label without progress
+        habitLabel = habit.label;
       } else {
-        // Add 's' for plural (day→days, week→weeks, etc.)
-        periodLabel = `${habit.periodicityMultiplier} ${habit.periodicityUnit}s`;
+        // For all other habits, show progress
+        // Generate period label with proper singular/plural
+        let periodLabel: string;
+        if (habit.periodicityMultiplier === 1) {
+          periodLabel = habit.periodicityUnit;
+        } else {
+          // Add 's' for plural (day→days, week→weeks, etc.)
+          periodLabel = `${habit.periodicityMultiplier} ${habit.periodicityUnit}s`;
+        }
+
+        // Show progress inline: "Exercise (2/5 per week)"
+        habitLabel = `${habit.label} (${completedCount}/${habit.targetCount} per ${periodLabel})`;
       }
 
-      // Show progress inline: "Exercise (2/5 per week)"
-      const progressText = `${habit.label} (${completedCount}/${habit.targetCount} per ${periodLabel})`;
-
-      cb._boolean(habit.id, progressText);
+      cb._boolean(habit.id, habitLabel);
       cb._md(`*Cue*: ${habit.cue} · *Reward*: ${habit.reward}`);
     });
 

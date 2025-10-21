@@ -17,8 +17,8 @@ Close the day gracefully. Set up tomorrow for success.`
   cb._md("---");
   cb._md("### Step 1: Tomorrow's Setup (Make It Easy)");
 
-  cb._md("**What can I prepare tonight to make tomorrow easier?**");
-  cb._md(
+  cb._inputLabel(
+    "What can I prepare tonight to make tomorrow easier?",
     "_Examples: Lay out workout clothes, prep lunch, charge devices, set out book_"
   );
   cb._text(
@@ -36,8 +36,10 @@ Close the day gracefully. Set up tomorrow for success.`
   cb._md("---");
   cb._md("### Step 2: Closing Reflection");
 
-  cb._md("**Stoic Evening Question:**");
-  cb._md("_Did I do my best with what was in my control today?_");
+  cb._inputLabel(
+    "Stoic Evening Question:",
+    "_Did I do my best with what was in my control today?_"
+  );
 
   cb._multiCheckboxSC(
     "stoic_evening_reflection",
@@ -50,7 +52,7 @@ Close the day gracefully. Set up tomorrow for success.`
     false
   );
 
-  cb._md("**What's one thing I'm better at today than yesterday?**");
+  cb._inputLabel("What's one thing I'm better at today than yesterday?");
   cb._text(
     "daily_improvement",
     "",

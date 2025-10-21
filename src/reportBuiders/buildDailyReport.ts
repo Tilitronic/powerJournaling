@@ -50,9 +50,10 @@ export async function buildDailyReport() {
 
   // Negative Visualization: Mon/Wed/Fri, or if shown yesterday but not completed
   if (
-    await componentScheduler.shouldShowComponent("negative_visualization_done", [
-      1, 3, 5,
-    ])
+    await componentScheduler.shouldShowComponent(
+      "negative_visualization_done",
+      [1, 3, 5]
+    )
   ) {
     noteFragments.push(negativeVisualization());
   }
@@ -62,9 +63,10 @@ export async function buildDailyReport() {
 
   // Voluntary Discomfort: Mon/Wed/Fri, or if shown yesterday but not completed
   if (
-    await componentScheduler.shouldShowComponent("voluntary_discomfort_done", [
-      1, 3, 5,
-    ])
+    await componentScheduler.shouldShowComponent(
+      "voluntary_discomfort_done",
+      [1, 3, 5]
+    )
   ) {
     noteFragments.push(voluntaryDiscomfort());
   }
@@ -97,9 +99,10 @@ export async function buildDailyReport() {
 
   // Mindful Moment: Mon/Wed/Fri, or if shown yesterday but not completed
   if (
-    await componentScheduler.shouldShowComponent("mindful_pause_taken", [
-      1, 3, 5,
-    ])
+    await componentScheduler.shouldShowComponent(
+      "mindful_pause_taken",
+      [1, 3, 5]
+    )
   ) {
     noteFragments.push(mindfulMoment());
   }

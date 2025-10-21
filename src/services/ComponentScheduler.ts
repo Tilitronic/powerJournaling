@@ -28,7 +28,9 @@ export class ComponentScheduler {
     }
 
     // If not a scheduled day, check if it was shown yesterday and not completed
-    const wasShownYesterday = await this.wasComponentShownYesterday(componentId);
+    const wasShownYesterday = await this.wasComponentShownYesterday(
+      componentId
+    );
     const wasCompletedYesterday = await this.wasComponentCompletedYesterday(
       componentId
     );

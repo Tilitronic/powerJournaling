@@ -17,19 +17,12 @@ export function morningReflection() {
 - **Build resilience** — accept reality as it is, not as you wish it were
 - **Increase effectiveness** — channel all your energy into what you CAN control
 
-**How to practice:**
-1. Read the lists below slowly
-2. Notice where you typically waste energy on things outside your control
-3. Choose ONE virtue to embody today through your actions and responses
-
 _"Make the best use of what is in your power, and take the rest as it happens."_ — Epictetus`,
     "Stoic Discipline of Desire"
   );
 
-  // Stoic meditation on control
-  cb._md("### The Dichotomy of Control");
-  cb._md(`
-**✅ COMPLETELY IN YOUR CONTROL:**
+  cb._guidance(
+    `**✅ COMPLETELY IN YOUR CONTROL:**
 - Your judgments and opinions
 - Your responses to events
 - Your character and virtues
@@ -43,16 +36,24 @@ _"Make the best use of what is in your power, and take the rest as it happens."_
 - Past and future events
 - Your reputation
 - The weather, traffic, luck
-- Sickness, aging, death
+- Sickness, aging, death`,
+    "The Dichotomy of Control"
+  );
 
-**🌊 The Way of Water** (from Taoism - Wu Wei)
+  cb._guidance(
+    `**🌊 The Way of Water** (from Taoism - Wu Wei)
 
 When you face obstacles today, ask:
 - "Can I change this?" → If yes, take action. If no, accept it.
 - "What can I learn from this obstacle?"
 - "How would water flow around this?"
 
-**🏔️ The Obstacle Is The Way** (from Stoicism)
+Water doesn't fight obstacles; it flows around them. Be like water.`,
+    "Wu Wei — The Way of Water"
+  );
+
+  cb._guidance(
+    `**🏔️ The Obstacle Is The Way** (from Stoicism)
 
 Marcus Aurelius taught: **"The impediment to action advances action. What stands in the way becomes the way."**
 
@@ -64,19 +65,28 @@ Every obstacle contains an opportunity:
 
 **The shift** — stop seeing obstacles as problems; start seeing them as **training equipment** for your character.
 
-**Remember** — the obstacle is not the enemy; your resistance to it is.`);
+**Remember** — the obstacle is not the enemy; your resistance to it is.`,
+    "The Obstacle Is The Way"
+  );
 
-  cb._md("**Today's Character Intention:**");
-  cb._md("*What virtue will I practice today? How will I embody it?*");
-  cb._text(
-    "character_intention",
-    "",
-    "e.g., 'I will practice patience by pausing 3 seconds before responding'"
+  cb._md("### Mindset Practices Completed");
+  cb._md("*Track which practices you engaged with today:*");
+
+  cb._boolean(
+    "dichotomy_of_control_practiced",
+    "📋 Reviewed Dichotomy of Control (what I can/cannot control)",
+    false
   );
 
   cb._boolean(
-    "morning_reflection_done",
-    "I have completed this morning reflection",
+    "wu_wei_practiced",
+    "🌊 Reflected on Wu Wei (flowing like water around obstacles)",
+    false
+  );
+
+  cb._boolean(
+    "obstacle_is_way_practiced",
+    "🏔️ Contemplated 'The Obstacle Is The Way' mindset",
     false
   );
 

@@ -16,8 +16,8 @@ Set yourself up for success tomorrow. Prepare your environment tonight.`,
 
   cb._md("### Make Tomorrow Easy");
 
-  cb._md("**What can I prepare tonight to make tomorrow easier?**");
-  cb._md(
+  cb._inputLabel(
+    "What can I prepare tonight to make tomorrow easier?",
     "_Examples: Lay out workout clothes, prep lunch, charge devices, set out book_"
   );
   cb._text(

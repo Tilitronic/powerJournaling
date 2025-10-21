@@ -16,17 +16,20 @@ Track patterns. Design better environments. Restore your willpower.`
 
   cb._fancyTitle("Attention Reflection", "👁️");
 
-  cb._md("**What distracted me most today?**");
+  cb._inputLabel("What distracted me most today?");
   cb._text(
     "main_distraction",
     "",
     "e.g., Social media notifications, colleague interruptions"
   );
 
-  cb._md("**When was I most focused?** (Flow state moments)");
+  cb._inputLabel("When was I most focused?", "(Flow state moments)");
   cb._text("flow_moments", "", "e.g., Morning deep work session from 9-11am");
 
-  cb._md("**What made my focus possible?** (Environment, time, task type)");
+  cb._inputLabel(
+    "What made my focus possible?",
+    "(Environment, time, task type)"
+  );
   cb._text(
     "flow_enablers",
     "",
@@ -35,27 +38,29 @@ Track patterns. Design better environments. Restore your willpower.`
 
   cb._fancyTitle("Willpower Reflection", "💪");
 
-  cb._md("**What was my biggest temptation/willpower challenge?**");
+  cb._inputLabel("What was my biggest temptation/willpower challenge?");
   cb._text(
     "willpower_challenge",
     "",
     "e.g., Urge to check phone during work, skip workout"
   );
 
-  cb._md(
-    "**What time did my willpower feel weakest?** (Morning/afternoon/evening)"
+  cb._inputLabel(
+    "What time did my willpower feel weakest?",
+    "(Morning/afternoon/evening)"
   );
   cb._text("willpower_time", "", "e.g., Late afternoon around 4pm");
 
-  cb._md("**Did I resist or give in?** (No judgment—just awareness)");
+  cb._inputLabel("Did I resist or give in?", "(No judgment—just awareness)");
   cb._text(
     "willpower_outcome",
     "",
     "e.g., Gave in after lunch, resisted in the morning"
   );
 
-  cb._md(
-    "**How did I restore my willpower today?** (Rest, breaks, nature, nourishment)"
+  cb._inputLabel(
+    "How did I restore my willpower today?",
+    "(Rest, breaks, nature, nourishment)"
   );
   cb._text(
     "willpower_recovery",
@@ -63,8 +68,9 @@ Track patterns. Design better environments. Restore your willpower.`
     "e.g., Took a walk outside, ate a healthy snack, got good sleep"
   );
 
-  cb._md(
-    "**Environmental fix** — what can I change tomorrow to make the right choice easier?"
+  cb._inputLabel(
+    "Environmental fix",
+    "What can I change tomorrow to make the right choice easier?"
   );
   cb._text(
     "environment_fix",
