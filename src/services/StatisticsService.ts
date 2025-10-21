@@ -196,7 +196,7 @@ ${chart}
    * Format boolean statistics as markdown
    */
   formatBooleanStats(stats: BooleanStats, habitName: string): string {
-    const streakEmoji = stats.currentStreakType === "true" ? "🔥" : "❄️";
+    const streakEmoji = stats.currentStreakType === "true" ? "✨" : "❄️";
     return `
 **${habitName} Statistics**
 - Total tracked: ${stats.count} days

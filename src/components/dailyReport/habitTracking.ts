@@ -8,66 +8,83 @@ export async function habitTracking() {
   const cb = new ComponentBuilder(componentName);
   const habits = config.habits;
 
-  // Show exercise statistics with visualizations
+  // Get active habits
+  const activeHabits = habits.filter((h) => h.active);
+
+  // Fetch historical data for all habits
+  const habitIds = activeHabits.map((h) => h.id);
+  let showStatistics = false;
+
   try {
-    const exerciseData = await dbService.getInputsLastNReports(
+    const allHabitData = await dbService.getInputsLastNReports(
       "almostDailyReport",
-      ["exercise"],
-      30
+      habitIds,
+      10
     );
 
-    if (exerciseData.length > 0) {
-      // Extract boolean values and dates from the data
-      const values = exerciseData.map((input) => input.value as boolean | null);
-      const dates = exerciseData.map((input) => input.reportDate || "");
+    // Only show statistics section if we have data for at least one habit
+    showStatistics = allHabitData.length > 0;
 
-      // Create full visual report with date context
-      // Only show charts that make sense based on data points
-      const report = statisticsService.createBooleanVisualReport(
-        values,
-        "Exercise Habit",
-        {
-          showSparkline: values.length >= 2,
-          showBarChart: true,
-          showAsciiChart: values.length >= 3,
-          showPieChart: values.length >= 2,
-          dates: dates, // Pass dates for time axis context
+    if (showStatistics) {
+      cb._md("## 📊 Habit Statistics (Last 10 Reports)");
+
+      // Show statistics for each habit that has data
+      for (const habit of activeHabits) {
+        const habitData = allHabitData.filter(
+          (input) => input.inputName === habit.id
+        );
+
+        if (habitData.length >= 2) {
+          // Only show if we have at least 2 data points
+          const values = habitData.map(
+            (input) => input.value as boolean | null
+          );
+
+          const stats = statisticsService.booleanStatistics(values);
+          const sparkline = statisticsService.createSparkline(
+            values.map((v) => (v === true ? 1 : 0))
+          );
+
+          // Compact statistics display - single line
+          cb._md(
+            `**${habit.label}:** ${stats.truePercentage.toFixed(0)}% (${
+              stats.trueCount
+            }/${stats.count}) · ${sparkline} · ${
+              stats.currentStreakType === "true" ? "✨" : "❄️"
+            } ${stats.currentStreak} streak`
+          );
         }
-      );
+      }
 
-      cb._md(report);
-    } else {
-      cb._md(
-        "## 📊 Exercise Habit\n\n*No exercise data yet. Start tracking today!*"
-      );
+      cb._divider();
     }
   } catch (error) {
-    cb._md("## 📊 Exercise Habit\n\n*Unable to load exercise history*");
+    console.error("Failed to fetch habit statistics:", error);
   }
 
-  cb._md("---\n## 📝 Today's Habits");
+  // Today's habits section
+  cb._md("## ✅ Today's Habits (📌 CORE - 1 min)");
 
-  habits.forEach((habit) => {
-    if (!habit.active) return;
+  cb._guidance(
+    `**Atomic Habits** — every habit = Cue → Craving → Response → Reward.
+**Taoist Wu Wei** — not perfection, but flow. Missed habits are okay—just return gently.
+**Power of Habit** — the cue and reward make habits stick, not willpower alone.
 
+**Check when complete:**`
+  );
+
+  activeHabits.forEach((habit) => {
     cb._boolean(habit.id, habit.label);
-    cb._md(`*Cue*. ${habit.cue} · *Reward*. ${habit.reward}`);
+    cb._md(`*Cue*: ${habit.cue} · *Reward*: ${habit.reward}`);
   });
 
-  cb._md("---\n## 🧪 Test Inputs");
-  cb._text("Test Text Input");
-  cb._md("***");
-  cb._number("Test Number Input 1");
-  cb._md("***");
-  cb._number("Test Number Input 2");
-  cb._md("***");
-  cb._multiCheckbox("Test MultiCheckbox Input", [
-    { label: "Option 1", value: "option_1" },
-    { label: "Option 2", value: "option_2" },
-    { label: "Option 3", value: "option_3" },
-  ]);
-  cb._md("***");
-  cb._richText("Test Rich Text Input");
+  if (activeHabits.length > 0) {
+    cb._md(
+      "> **Wisdom** — missing once is an accident. Missing twice is the start of a pattern. Return gently."
+    );
+  } else {
+    cb._md("*No active habits configured. Add habits in your config file.*");
+  }
 
   return cb.render();
 }

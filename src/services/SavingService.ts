@@ -32,6 +32,20 @@ export const savingService = {
     return format(new Date(), "yyyyMMdd");
   },
 
+  /** Returns today’s date in DD.MM.YYYY format */
+  _getFormattedDate(): string {
+    return format(new Date(), "dd.MM.yyyy");
+  },
+
+  /** Returns the number of days remaining in the year, padded to 3 digits */
+  _getDaysRemainingInYear(): string {
+    const now = new Date();
+    const endOfYear = new Date(now.getFullYear(), 11, 31);
+    const diffInMs = endOfYear.getTime() - now.getTime();
+    const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+    return String(diffInDays).padStart(3, "0");
+  },
+
   /** Ensure folder exists in vault */
   async _ensureFolder(folderPath: string) {
     const folder = obApp.vault.getAbstractFileByPath(folderPath);
@@ -113,11 +127,12 @@ export const savingService = {
 
     await this._ensureFolder(folder);
 
-    const todayPrefix = this._today();
+    const daysRemaining = this._getDaysRemainingInYear();
+    const formattedDate = this._getFormattedDate();
     const files = await this._listFiles(folder);
     const nextIndex = files.length + 1;
     const indexStr = String(nextIndex).padStart(5, "0");
-    const fileName = `${todayPrefix}-${indexStr}-${options.type}${this.fileExtension}`;
+    const fileName = `${daysRemaining}-${formattedDate}-${indexStr}-${options.type}${this.fileExtension}`;
     const filePath = `${folder}/${fileName}`;
 
     const exists = obApp.vault.getAbstractFileByPath(filePath);

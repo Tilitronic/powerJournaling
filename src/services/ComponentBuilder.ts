@@ -20,11 +20,94 @@ export class ComponentBuilder {
     return this;
   }
 
+  // --- Dividers ---
+  /**
+   * Add a simple subsection divider (three asterisks).
+   * Use for separating subsections WITHIN a component.
+   */
+  _divider() {
+    this.content.push("***");
+    return this;
+  }
+
+  /**
+   * Add a fancy centered title divider using HTML center tag.
+   * Auto-adjusts to screen width with horizontal rule above/below.
+   * @param title - Title text to display
+   * @param emoji - Optional emoji to include (default: ⚛︎)
+   * @example
+   * _fancyDivider("Wins & Accomplishments", "🏆")
+   * // Produces:
+   * // ---
+   * // <center>🏆 Wins & Accomplishments 🏆</center>
+   * // ---
+   */
+  _fancyDivider(title?: string, emoji: string = "⚛︎") {
+    if (title) {
+      this.content.push("---");
+      this.content.push(
+        `<center>${emoji} <strong>${title}</strong> ${emoji}</center>`
+      );
+      this.content.push("---");
+    } else {
+      this.content.push("---");
+    }
+    return this;
+  }
+
+  /**
+   * Add a themed divider using heading with emoji.
+   * Renders beautifully in Obsidian with auto-width.
+   * @param title - Title text
+   * @param emoji - Emoji to use
+   * @example
+   * _themedDivider("Today's Accomplishments", "🏆")
+   * // Produces: ### 🏆 Today's Accomplishments
+   */
+  _themedDivider(title: string, emoji: string) {
+    this.content.push(`### ${emoji} ${title}`);
+    return this;
+  }
+
+  /**
+   * Add a blockquote divider - renders as a nice accent line.
+   * @param text - Optional text to include in the blockquote
+   * @example
+   * _blockquoteDivider("✦ Section Break ✦")
+   * // Produces: > ✦ Section Break ✦
+   */
+  _blockquoteDivider(text?: string) {
+    if (text) {
+      this.content.push(`> ${text}`);
+    } else {
+      this.content.push("> ---");
+    }
+    return this;
+  }
+
   // --- Guidance ---
-  _guidance(customText?: string) {
-    const guidanceText =
-      customText ??
-      "> [!note] Guidance  \nKeep it simple — research shows even a basic ticksheet improves habit consistency.\nPrompts: Which habits do you want to track today?";
+  /**
+   * Add a guidance callout box. Automatically wraps content in "> [!note] Guidance" syntax.
+   * @param content - The guidance text (can be multiline). If not provided, uses default habit tracking guidance.
+   * @param title - Optional custom title (default: "Guidance")
+   * @example
+   * _guidance("**Stoicism**: Focus on what you can control.\n**Taoist Wu Wei**: Flow like water.")
+   * // Produces: > [!note] Guidance
+   * //           > **Stoicism**: Focus on what you can control.
+   * //           > **Taoist Wu Wei**: Flow like water.
+   */
+  _guidance(content?: string, title: string = "Guidance") {
+    const defaultContent =
+      "Keep it simple — research shows even a basic ticksheet improves habit consistency.\nPrompts: Which habits do you want to track today?";
+
+    const guidanceContent = content ?? defaultContent;
+
+    // Split content into lines and prefix each with "> " for Obsidian callout syntax
+    const lines = guidanceContent.split("\n");
+    const formattedLines = lines.map((line) => `> ${line}`);
+
+    const guidanceText = `> [!note] ${title}\n${formattedLines.join("\n")}`;
+
     this.content.push(guidanceText);
     return this;
   }
@@ -49,6 +132,10 @@ export class ComponentBuilder {
   }
 
   _richText(inputName: string, defaultValue?: string, placeholder?: string) {
+    // Add visual top boundary (outside input tags)
+    this.content.push("<center>· · · · · · · · · · · · · · · ·</center>");
+
+    // Create the actual input (will be wrapped in tags by inputCreator)
     const value = inputCreator.createInput({
       componentName: this.componentName,
       type: InputsConst.richText,
@@ -57,6 +144,10 @@ export class ComponentBuilder {
       placeholder,
     });
     this.content.push(value);
+
+    // Add visual bottom boundary (outside input tags)
+    this.content.push("<center>· · · · · · · · · · · · · · · ·</center>");
+
     return this;
   }
 
@@ -101,24 +192,24 @@ export class ComponentBuilder {
     return this;
   }
 
-  // _multiCheckboxSC(
-  //   inputName: string,
-  //   options: { label: string; value: string }[],
-  //   defaultValue?: string[],
-  //   collapsed?: boolean
-  // ) {
-  //   const value = inputCreator.createInput({
-  //     componentName: this.componentName,
-  //     type: InputsConst.multicheckbox,
-  //     inputName,
-  //     options,
-  //     singleChoice: true,
-  //     defaultValue,
-  //     collapsed,
-  //   });
-  //   this.content.push(value);
-  //   return this;
-  // }
+  _multiCheckboxSC(
+    inputName: string,
+    options: { label: string; value: string }[],
+    defaultValue?: string[],
+    collapsed?: boolean
+  ) {
+    const value = inputCreator.createInput({
+      componentName: this.componentName,
+      type: InputsConst.multicheckbox,
+      inputName,
+      options,
+      singleChoice: true,
+      defaultValue,
+      collapsed,
+    });
+    this.content.push(value);
+    return this;
+  }
 
   // --- Render final component ---
   render() {
