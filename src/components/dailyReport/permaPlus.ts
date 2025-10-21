@@ -124,7 +124,7 @@ export async function permaPlus() {
   // Header and guidance
   cb._md("## 💚 PERMA+8 Wellbeing Check (📌 CORE - 2-3 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**PERMA+8 Model**: Comprehensive wellbeing framework covering 13 dimensions:
 
 **Core PERMA:**

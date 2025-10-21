@@ -6,7 +6,7 @@ export function mindfulMoment() {
 
   cb._md("## 🧘 Mindful Moment (💡 OPTIONAL - 2-3 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**Present Moment Awareness** — The antidote to anxiety
 
 Anxiety lives in the future (what if?). Regret lives in the past (if only...). Peace lives in NOW.

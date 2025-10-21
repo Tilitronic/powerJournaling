@@ -53,6 +53,46 @@ function getPeriodStartDate(habit: Habit): string {
 }
 
 /**
+ * Get the start date for a custom period (used for maxLimit calculations)
+ */
+function getCustomPeriodStartDate(
+  periodicityMultiplier: number,
+  periodicityUnit: PeriodicityUnit
+): string {
+  const now = new Date();
+
+  switch (periodicityUnit) {
+    case PeriodicityUnit.Day:
+      const daysAgo = new Date(now);
+      daysAgo.setDate(now.getDate() - periodicityMultiplier);
+      return daysAgo.toISOString().split("T")[0];
+
+    case PeriodicityUnit.Week:
+      const weeksAgo = new Date(now);
+      weeksAgo.setDate(now.getDate() - periodicityMultiplier * 7);
+      return weeksAgo.toISOString().split("T")[0];
+
+    case PeriodicityUnit.Month:
+      const monthsAgo = new Date(now);
+      monthsAgo.setMonth(now.getMonth() - periodicityMultiplier);
+      return monthsAgo.toISOString().split("T")[0];
+
+    case PeriodicityUnit.Quarter:
+      const quartersAgo = new Date(now);
+      quartersAgo.setMonth(now.getMonth() - periodicityMultiplier * 3);
+      return quartersAgo.toISOString().split("T")[0];
+
+    case PeriodicityUnit.Year:
+      const yearsAgo = new Date(now);
+      yearsAgo.setFullYear(now.getFullYear() - periodicityMultiplier);
+      return yearsAgo.toISOString().split("T")[0];
+
+    default:
+      return now.toISOString().split("T")[0];
+  }
+}
+
+/**
  * Calculate how many times a habit has been completed in the current period
  */
 async function getHabitProgressInPeriod(habit: Habit): Promise<number> {
@@ -77,6 +117,39 @@ async function getHabitProgressInPeriod(habit: Habit): Promise<number> {
   return completionCount;
 }
 
+/**
+ * Calculate progress toward a habit's maximum limit (if defined)
+ */
+async function getHabitMaxLimitProgress(
+  habit: Habit
+): Promise<{ current: number; max: number; percentage: number } | null> {
+  if (!habit.maxLimit) return null;
+
+  const periodStart = getCustomPeriodStartDate(
+    habit.maxLimit.periodicityMultiplier,
+    habit.maxLimit.periodicityUnit
+  );
+
+  const allInputs = await dbService.getInputsByName(
+    "almostDailyReport",
+    habit.id
+  );
+
+  const periodInputs = allInputs.filter((input) => {
+    return input.reportDate && input.reportDate >= periodStart;
+  });
+
+  const completionCount = periodInputs.filter(
+    (input) => input.value === true
+  ).length;
+
+  return {
+    current: completionCount,
+    max: habit.maxLimit.count,
+    percentage: (completionCount / habit.maxLimit.count) * 100,
+  };
+}
+
 export async function habitTracking() {
   const componentName = "habitTracking";
   const cb = new ComponentBuilder(componentName);
@@ -89,11 +162,13 @@ export async function habitTracking() {
   const habitProgress = await Promise.all(
     activeHabits.map(async (habit) => {
       const completedCount = await getHabitProgressInPeriod(habit);
+      const maxLimitProgress = await getHabitMaxLimitProgress(habit);
       return {
         habit,
         completedCount,
         isComplete: completedCount >= habit.targetCount,
         shouldShow: habit.permanent || completedCount < habit.targetCount,
+        maxLimitProgress,
       };
     })
   );
@@ -155,7 +230,7 @@ export async function habitTracking() {
   // Today's habits section
   cb._md("## ✅ Today's Habits (📌 CORE - 1 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**Atomic Habits** — every habit = Cue → Craving → Response → Reward.
 **Taoist Wu Wei** — not perfection, but flow. Missed habits are okay—just return gently.
 **Power of Habit** — the cue and reward make habits stick, not willpower alone.
@@ -164,7 +239,7 @@ export async function habitTracking() {
   );
 
   if (habitsToShow.length > 0) {
-    habitsToShow.forEach(({ habit, completedCount }) => {
+    habitsToShow.forEach(({ habit, completedCount, maxLimitProgress }) => {
       // Check if this is a simple daily habit (1 per day)
       const isSimpleDaily =
         habit.targetCount === 1 &&
@@ -193,6 +268,46 @@ export async function habitTracking() {
 
       cb._boolean(habit.id, habitLabel);
       cb._md(`*Cue*: ${habit.cue} · *Reward*: ${habit.reward}`);
+
+      // Show max limit progress if defined
+      if (maxLimitProgress) {
+        const { current, max, percentage } = maxLimitProgress;
+
+        // Generate period label for max limit
+        let maxPeriodLabel: string;
+        if (habit.maxLimit!.periodicityMultiplier === 1) {
+          maxPeriodLabel = habit.maxLimit!.periodicityUnit;
+        } else {
+          maxPeriodLabel = `${habit.maxLimit!.periodicityMultiplier} ${
+            habit.maxLimit!.periodicityUnit
+          }s`;
+        }
+
+        // Create visual progress bar (20 characters wide)
+        const barWidth = 20;
+        const filledWidth = Math.round((current / max) * barWidth);
+        const emptyWidth = barWidth - filledWidth;
+        const progressBar = "█".repeat(filledWidth) + "░".repeat(emptyWidth);
+
+        // Determine warning emoji and color based on percentage
+        let statusEmoji = "✅";
+        let warningText = "";
+        if (percentage >= 100) {
+          statusEmoji = "🚫";
+          warningText = " **LIMIT REACHED**";
+        } else if (percentage >= 80) {
+          statusEmoji = "⚠️";
+          warningText = " **Approaching limit**";
+        } else if (percentage >= 60) {
+          statusEmoji = "⚡";
+        }
+
+        cb._md(
+          `${statusEmoji} **Limit tracker:** ${current}/${max} times per ${maxPeriodLabel} · ${progressBar} ${percentage.toFixed(
+            0
+          )}%${warningText}`
+        );
+      }
     });
 
     cb._md(

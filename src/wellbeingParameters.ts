@@ -62,7 +62,13 @@ export const wellbeingParameters: WellbeingParameter[] = [
   {
     id: "physicalCondition",
     label: "Physical Condition",
-    info: "Your bodily health: exercise, nutrition, energy levels and how physically capable you feel. General fitness and vitality.",
+    info: "Your bodily health: exercise, energy levels and how physically capable you feel. General fitness and vitality.",
+    active: true,
+  },
+  {
+    id: "nutrition",
+    label: "Nutrition",
+    info: "Quality of your food choices and eating patterns. Nourishing your body with balanced meals, adequate hydration, and mindful eating. Good nutrition fuels energy, mood, and long-term health.",
     active: true,
   },
   {

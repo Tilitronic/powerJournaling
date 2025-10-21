@@ -6,7 +6,7 @@ export function priorityPlanning() {
 
   cb._md("## 🎯 Priority Planning (📌 CORE - 3-5 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**Start with Death, Plan with Clarity**
 
 **Memento Mori** (from Stoicism) — "Remember you will die." This isn't morbid—it's the ultimate focusing tool. When you remember death, trivialities fade and what truly matters becomes crystal clear.

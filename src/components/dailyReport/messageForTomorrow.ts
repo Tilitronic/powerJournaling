@@ -6,7 +6,7 @@ export function messageForTomorrow() {
 
   cb._md("## 💌 Message & Intention for Tomorrow (📌 CORE - 2 min)");
 
-  cb._guidance(
+  cb._foldable(
     `Set yourself up for success tomorrow with clarity and encouragement.
 
 **Tomorrow's Priority**: What's the ONE thing that matters most? When and where will you do it?

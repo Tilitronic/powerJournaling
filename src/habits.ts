@@ -23,7 +23,7 @@ export const habits: Habit[] = [
     permanent: true,
   },
   {
-    id: "morningPhysicalWarmUp",
+    id: "morningWarmUp",
     label: "Morning Physical Warm-Up",
     cue: "After waking up",
     reward: "Increased energy and readiness for the day",
@@ -33,7 +33,7 @@ export const habits: Habit[] = [
     active: true,
   },
   {
-    id: "havingFun",
+    id: "recreation",
     label: "Having fun",
     cue: "In the evening or during free time",
     reward: "Relaxation, joy, and stress relief",
@@ -43,7 +43,7 @@ export const habits: Habit[] = [
     active: true,
   },
   {
-    id: "fpf",
+    id: "selfPleasure",
     label: "FPF",
     cue: "At free from work personal time",
     reward: "Better focus and increasing ability to feel joy",
@@ -53,7 +53,7 @@ export const habits: Habit[] = [
     active: true,
   },
   {
-    id: "poetry",
+    id: "poetryEngaging",
     label: "Spend time with poetry",
     cue: "At leisure time",
     reward:
@@ -62,5 +62,30 @@ export const habits: Habit[] = [
     periodicityMultiplier: 1,
     periodicityUnit: PU.Month,
     active: true,
+  },
+  {
+    id: "programmingLearning",
+    label: "Programming study",
+    cue: "Dedicated learning time",
+    reward: "Skill development, career growth, and problem-solving mastery",
+    targetCount: 3,
+    periodicityMultiplier: 1,
+    periodicityUnit: PU.Week,
+    active: true,
+  },
+  {
+    id: "recreationalCannabis",
+    label: "Getting high",
+    cue: "Day off (if next day is also day off, then) in safe calm well prepared environment and mood",
+    reward: "Self-care routine, relaxation, stress relief",
+    targetCount: 1,
+    periodicityMultiplier: 1,
+    periodicityUnit: PU.Week,
+    active: true,
+    maxLimit: {
+      count: 20,
+      periodicityMultiplier: 6,
+      periodicityUnit: PU.Month,
+    },
   },
 ] as const;

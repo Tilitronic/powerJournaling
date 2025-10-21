@@ -6,7 +6,7 @@ export function gratitudeAndSavoring() {
 
   cb._md("## 🙏 Gratitude & Savoring (⭐ RECOMMENDED - 3-7 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**Three Good Things Intervention** — writing WHY things went well is crucial for wellbeing.
 **Stoicism** — negative visualization—appreciate what you have by imagining its loss.
 **Positive Psychology** — gratitude is one of the strongest wellbeing predictors.

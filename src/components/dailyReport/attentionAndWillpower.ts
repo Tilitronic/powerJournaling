@@ -6,7 +6,7 @@ export function attentionAndWillpower() {
 
   cb._md("## 🎯 Attention & Willpower Check (💡 OPTIONAL - 3-5 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**Hyperfocus** — attention is your most valuable resource. Protect it fiercely.
 **The Willpower Instinct** — willpower depletes throughout the day and needs recovery (rest, breaks, nature).
 **Atomic Habits** — environment shapes behavior more than motivation.

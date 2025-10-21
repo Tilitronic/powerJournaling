@@ -6,88 +6,94 @@ export function morningReflection() {
 
   cb._md("## 🧘 Morning Reflection (⭐ RECOMMENDED - 2-3 min)");
 
-  cb._guidance(
-    `**The Dichotomy of Control** — The foundation of Stoic peace
+  cb._foldable(
+    `**What This Practice Does:**
+This is the foundational Stoic exercise that eliminates suffering by training you to focus only on what you can control.
 
-**From Stoicism** — the Stoics teach that **all suffering comes from desiring things outside your control**. This morning meditation trains you to recognize what you can and cannot control, so you waste no energy on the unchangeable.
+**The Core Principle:**
+The Stoics discovered that **all suffering comes from desiring things outside your control**. When you stop struggling against the unchangeable and channel your energy into what you CAN control, you gain peace of mind.
 
-**Why this matters:**
-- **Focus your power** — stop struggling against things you cannot change
-- **Reduce anxiety** — let go of outcomes beyond your influence  
-- **Build resilience** — accept reality as it is, not as you wish it were
-- **Increase effectiveness** — channel all your energy into what you CAN control
+**✅ COMPLETELY IN YOUR CONTROL:**
+- Your judgments, opinions, and interpretations
+- Your responses and reactions to events
+- Your character, virtues, and values
+- Your effort, attention, and choices
+- How you treat others
+- What you pursue and avoid
+
+**❌ OUTSIDE YOUR CONTROL:**
+- Other people's opinions, actions, and judgments
+- Outcomes, results, and consequences
+- Past events and future circumstances
+- Your reputation and what others think
+- External events (weather, traffic, delays)
+- Natural processes (aging, sickness, death)
+
+**How to Practice:**
+When faced with any situation today, ask yourself: "Is this within my control?" If yes, take action. If no, accept it and focus on your response instead.
 
 _"Make the best use of what is in your power, and take the rest as it happens."_ — Epictetus`,
-    "Stoic Discipline of Desire"
+    "Stoic Practice: The Dichotomy of Control"
   );
-
-  cb._guidance(
-    `**✅ COMPLETELY IN YOUR CONTROL:**
-- Your judgments and opinions
-- Your responses to events
-- Your character and virtues
-- Your effort and attention
-- How you treat others
-- What you value
-
-**❌ NOT IN YOUR CONTROL:**
-- Other people's opinions and actions
-- Outcomes and results
-- Past and future events
-- Your reputation
-- The weather, traffic, luck
-- Sickness, aging, death`,
-    "The Dichotomy of Control"
-  );
-
-  cb._guidance(
-    `**🌊 The Way of Water** (from Taoism - Wu Wei)
-
-When you face obstacles today, ask:
-- "Can I change this?" → If yes, take action. If no, accept it.
-- "What can I learn from this obstacle?"
-- "How would water flow around this?"
-
-Water doesn't fight obstacles; it flows around them. Be like water.`,
-    "Wu Wei — The Way of Water"
-  );
-
-  cb._guidance(
-    `**🏔️ The Obstacle Is The Way** (from Stoicism)
-
-Marcus Aurelius taught: **"The impediment to action advances action. What stands in the way becomes the way."**
-
-Every obstacle contains an opportunity:
-- **Obstacle blocks your plan?** → forces you to become more creative and resourceful
-- **Person frustrates you?** → chance to practice patience and understanding  
-- **Failure happens?** → data for learning and growth
-- **Delay occurs?** → time to prepare better or rest
-
-**The shift** — stop seeing obstacles as problems; start seeing them as **training equipment** for your character.
-
-**Remember** — the obstacle is not the enemy; your resistance to it is.`,
-    "The Obstacle Is The Way"
-  );
-
-  cb._md("### Mindset Practices Completed");
-  cb._md("*Track which practices you engaged with today:*");
 
   cb._boolean(
     "dichotomy_of_control_practiced",
-    "📋 Reviewed Dichotomy of Control (what I can/cannot control)",
-    false
+    "📋 I practiced the Dichotomy of Control (separating what I can/cannot control)"
+  );
+
+  cb._foldable(
+    `**What This Practice Does:**
+Wu Wei teaches effortless action – responding to life's obstacles with flexibility rather than rigid resistance.
+
+**The Core Principle:**
+From Taoism comes the wisdom of "flowing like water." Water doesn't fight obstacles – it adapts, flows around them, and finds a way through. When you stop resisting what you cannot change, you conserve energy and discover creative solutions.
+
+**How to Practice Wu Wei Today:**
+
+1. **When you encounter an obstacle, pause and ask:**
+   - "Can I change this?" → If yes, take calm action. If no, accept it.
+   - "What can I learn from this?"
+   - "How would water respond to this?"
+
+2. **Remember:** Fighting against unchangeable circumstances drains your energy. Flowing with them preserves it.
+
+3. **The shift:** From "This shouldn't be happening" to "This IS happening – how do I respond skillfully?"
+
+_"The rigid tree breaks in the wind. The flexible tree bends and survives."_ — Taoist wisdom`,
+    "Taoist Practice: Wu Wei (Effortless Action)"
   );
 
   cb._boolean(
     "wu_wei_practiced",
-    "🌊 Reflected on Wu Wei (flowing like water around obstacles)",
-    false
+    "🌊 I practiced Wu Wei (accepting what I cannot change and flowing like water)"
+  );
+
+  cb._foldable(
+    `**What This Practice Does:**
+Transforms obstacles from problems into opportunities for growth, creativity, and building character.
+
+**The Core Principle:**
+Marcus Aurelius taught: **"The impediment to action advances action. What stands in the way becomes the way."**
+
+This means every obstacle contains hidden opportunity:
+- **Blocked plan?** → Forces you to become more creative and resourceful
+- **Frustrating person?** → Opportunity to practice patience and understanding
+- **Failure?** → Valuable data for learning and improvement
+- **Delay?** → Gift of time to prepare better or rest
+
+**The Reframe:**
+Stop seeing obstacles as enemies. Start seeing them as **training equipment** for your character. Each challenge makes you stronger, wiser, more resilient.
+
+**How to Practice:**
+When you face a setback today, ask: "What opportunity is hidden in this obstacle? How is this making me better?"
+
+_"The obstacle is not blocking your path – it IS your path. It's revealing where you need to grow."_ — Ryan Holiday`,
+    "Stoic Practice: The Obstacle Is The Way"
   );
 
   cb._boolean(
     "obstacle_is_way_practiced",
-    "🏔️ Contemplated 'The Obstacle Is The Way' mindset",
-    false
+    "🏔️ I practiced 'The Obstacle Is The Way' (reframing obstacles as opportunities)"
   );
 
   return cb.render();

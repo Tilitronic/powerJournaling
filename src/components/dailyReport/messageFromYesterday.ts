@@ -45,7 +45,7 @@ export async function messageFromYesterday() {
     cb._md(`> ${messageText}`);
   }
 
-  cb._guidance(
+  cb._foldable(
     `Your past self sent you guidance! Take a moment to reflect on it.`,
     "A Gift from Yesterday"
   );

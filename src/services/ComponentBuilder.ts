@@ -89,24 +89,19 @@ export class ComponentBuilder {
 
   // --- Guidance ---
   /**
-   * Add a guidance callout box. Automatically wraps content in "> [!note]- Guidance" syntax (collapsed by default).
-   * @param content - The guidance text (can be multiline). If not provided, uses default habit tracking guidance.
+   * Add a foldable callout box. Automatically wraps content in "> [!note]- Title" syntax (collapsed by default).
+   * @param content - The guidance text (can be multiline). Required.
    * @param title - Optional custom title (default: "Guidance")
    * @example
-   * _guidance("**Stoicism**: Focus on what you can control.\n**Taoist Wu Wei**: Flow like water.")
+   * _foldable("**Stoicism**: Focus on what you can control.\n**Taoist Wu Wei**: Flow like water.")
    * // Produces: > [!note]- Guidance
    * //           > **Stoicism**: Focus on what you can control.
    * //           > **Taoist Wu Wei**: Flow like water.
    */
-  _guidance(content?: string, title: string = "Guidance") {
-    const defaultContent =
-      "Keep it simple — research shows even a basic ticksheet improves habit consistency.\nPrompts: Which habits do you want to track today?";
-
-    const guidanceContent = content ?? defaultContent;
-
+  _foldable(content: string, title: string = "Guidance") {
     // Split content into lines and prefix each with "> " for Obsidian callout syntax
-    const lines = guidanceContent.split("\n");
-    const formattedLines = lines.map((line) => `> ${line}`);
+    const lines = content.split("\n");
+    const formattedLines = lines.map((line: string) => `> ${line}`);
 
     // Use [!note]- to make the callout collapsed by default
     const guidanceText = `> [!note]- ${title}\n${formattedLines.join("\n")}`;

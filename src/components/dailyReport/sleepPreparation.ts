@@ -6,7 +6,7 @@ export function sleepPreparation() {
 
   cb._md("## 💤 Sleep Preparation (💡 OPTIONAL - 2-3 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**Atomic Habits**: Make tomorrow's good habits obvious and easy tonight.
 **Sleep Science**: Evening routine signals the brain to prepare for rest.
 

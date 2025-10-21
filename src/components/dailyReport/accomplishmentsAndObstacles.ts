@@ -6,7 +6,7 @@ export function accomplishmentsAndObstacles() {
 
   cb._md("## 📊 Wins & Obstacles (⭐ RECOMMENDED - 4-6 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**The Stoic Path** — "The obstacle is the way." Every setback is training.
 
 _"The impediment to action advances action. What stands in the way becomes the way."_ — Marcus Aurelius

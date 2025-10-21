@@ -6,7 +6,7 @@ export function negativeVisualization() {
 
   cb._md("## 🪞 Negative Visualization (💡 OPTIONAL - 2 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**Praemeditatio Malorum** — Ancient Stoic gratitude practice
 
 This is NOT pessimism. This is **appreciation training** that the Stoics practiced daily.

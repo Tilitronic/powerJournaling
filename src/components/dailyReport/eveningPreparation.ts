@@ -6,7 +6,7 @@ export function eveningPreparation() {
 
   cb._md("## 🌙 Evening Preparation Ritual");
 
-  cb._guidance(
+  cb._foldable(
     `**Atomic Habits**: Make tomorrow's good habits obvious and easy tonight.
 **Stoicism**: End each day without regret—you did what was in your control.
 **Sleep Science**: Evening routine signals the brain to prepare for rest.

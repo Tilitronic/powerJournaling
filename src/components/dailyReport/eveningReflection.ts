@@ -6,7 +6,7 @@ export function eveningReflection() {
 
   cb._md("## 🌙 Evening Reflection (⭐ RECOMMENDED - 2-3 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**The Stoic Evening Review** — Ancient wisdom for modern peace
 
 The Stoics ended each day with self-examination. Not to judge themselves harshly, but to **learn, release, and sleep peacefully**.

@@ -6,7 +6,7 @@ export function emotionAwareness() {
 
   cb._md("## 💭 Emotion Awareness (💡 OPTIONAL - 3-5 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**Emotional Intelligence** — recognizing emotions is the first step to managing them.
 **Stoicism** — you can't control feelings arising, but you can control your response.
 **Neuroscience** — naming emotions reduces their intensity (affect labeling).

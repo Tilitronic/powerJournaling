@@ -20,4 +20,10 @@ export interface Habit {
   periodicityUnit: PeriodicityUnit;
   active: boolean;
   permanent?: boolean;
+  /** Maximum limit over a longer time period (e.g., "no more than X times per 6 months") */
+  maxLimit?: {
+    count: number; // maximum number of times allowed
+    periodicityMultiplier: number; // time period multiplier
+    periodicityUnit: PeriodicityUnit; // time period unit
+  };
 }

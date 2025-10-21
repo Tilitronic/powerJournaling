@@ -6,7 +6,7 @@ export function voluntaryDiscomfort() {
 
   cb._md("## 🧊 Voluntary Discomfort (💡 OPTIONAL - 2 min)");
 
-  cb._guidance(
+  cb._foldable(
     `**Practicing Poverty** — Seneca's resilience training
 
 The Stoics deliberately practiced small discomforts. Not to punish themselves, but to build mental strength and appreciation.
