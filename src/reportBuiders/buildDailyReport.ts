@@ -39,31 +39,24 @@ export async function buildDailyReport() {
   );
   noteFragments.push("\n---\n"); // Major section divider
 
-  const messageYesterday = await messageFromYesterday();
-  if (messageYesterday) {
-    noteFragments.push(messageYesterday);
-  }
-
+  noteFragments.push(await messageFromYesterday());
   noteFragments.push(await morningReflection());
-
   noteFragments.push(await negativeVisualization());
-
-  // mementoMori is now integrated into priorityPlanning
+  noteFragments.push(await mindfulMoment());
   noteFragments.push(await priorityPlanning());
 
-  noteFragments.push(await voluntaryDiscomfort());
-
   // =============================================================================
-  // 📋 DAILY HABITS
+  // 📋 DAILY HABITS & PRACTICES
   // =============================================================================
   noteFragments.push("\n---\n"); // Major section divider
-  noteFragments.push("# 📋 DAILY HABITS");
+  noteFragments.push("# 📋 DAILY HABITS & PRACTICES");
   noteFragments.push(
     "*Small actions, repeated daily, create remarkable results.*"
   );
   noteFragments.push("\n---\n"); // Major section divider
 
   noteFragments.push(await habitTracking());
+  noteFragments.push(await voluntaryDiscomfort());
 
   // =============================================================================
   // 🌙 EVENING SECTION: Reflect & Close the Day
@@ -78,9 +71,6 @@ export async function buildDailyReport() {
   noteFragments.push(await accomplishmentsAndObstacles());
   noteFragments.push(await attentionAndWillpower());
   noteFragments.push(await gratitudeAndSavoring());
-
-  noteFragments.push(await mindfulMoment());
-
   noteFragments.push(await emotionAwareness());
   noteFragments.push(await permaPlus());
   noteFragments.push(await messageForTomorrow());
