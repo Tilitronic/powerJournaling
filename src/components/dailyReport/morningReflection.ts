@@ -11,7 +11,6 @@ export async function morningReflection() {
     .forEach((practice) => {
       cb._input(practice.inputOptions);
       cb._foldable(practice.guide, "Guide");
-      cb._md("\n");
     });
 
   return cb.render();

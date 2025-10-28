@@ -129,8 +129,10 @@ Rate honestly—awareness is the first step to change.
         }${param.schedule.showEvery.count > 1 ? "s" : ""})*`
       : "";
 
-    cb._md(`### ${param.label}${avgDisplay}${periodicityNote}`);
-    cb._md(`*${param.description}*`);
+    cb._inputLabel(
+      `${param.label}${avgDisplay}${periodicityNote}`,
+      `*${param.description}*`
+    );
 
     // Use multicheckbox with singleChoice for radio button behavior
     cb._input(param.inputOptions);

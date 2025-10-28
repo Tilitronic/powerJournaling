@@ -13,7 +13,7 @@ const createMindPracticeConfig = (practice: MindPracticePreconfig) => ({
   inputOptions: {
     inputId: practice.id,
     type: InputsConst.boolean,
-    label: practice.inputLabel,
+    label: practice.label,
   },
 });
 

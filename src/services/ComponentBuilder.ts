@@ -165,6 +165,17 @@ export class ComponentBuilder {
         componentId: this.componentId,
       };
       this.content.push(inputCreator.createInput(optsWithComponent));
+
+      // Add newline after text/number inputs for proper spacing with following content
+      // (especially important before markdown like foldables that start with ">")
+      // Booleans and multicheckbox don't need this extra spacing
+      const needsSpacing =
+        config.inputOptions.type !== InputsConst.boolean &&
+        config.inputOptions.type !== InputsConst.multicheckbox;
+
+      if (needsSpacing) {
+        this.content.push("");
+      }
     } else {
       // It's just CreateInputOptions, use directly (backward compatibility)
       this.hasRenderedInputs = true;
