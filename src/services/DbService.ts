@@ -156,42 +156,40 @@ class DbService {
   /**
    * Get inputs filtered by component and/or input names
    * @param reportType - The type of report (e.g., "almostDailyReport")
-   * @param inputNames - Single input name or array of input names to filter
+   * @param inputIds - Single input ID or array of input IDs to filter
    * @param componentName - Optional component name to filter by
    * @example
    * // Get all "exercise" inputs from any component
-   * const exerciseInputs = await dbService.getInputsByName("almostDailyReport", "exercise");
+   * const exerciseInputs = await dbService.getInputsById("almostDailyReport", "exercise");
    *
    * // Get multiple inputs from a specific component
-   * const habits = await dbService.getInputsByName("almostDailyReport", ["exercise", "dayPlanning"], "habitTracking");
+   * const habits = await dbService.getInputsById("almostDailyReport", ["exercise", "dayPlanning"], "habitTracking");
    *
    * // Get multiple inputs from any component
-   * const allHabits = await dbService.getInputsByName("almostDailyReport", ["exercise", "dayPlanning", "havingFun"]);
+   * const allHabits = await dbService.getInputsById("almostDailyReport", ["exercise", "dayPlanning", "havingFun"]);
    */
-  async getInputsByName(
+  async getInputsById(
     reportType: string,
-    inputNames: string | string[],
-    componentName?: string
+    inputIds: string | string[],
+    componentId?: string
   ): Promise<CollectedInput[]> {
     await this.init();
     const db = await this.ensureDb();
     const allInputs = db.data!.reports[reportType] || [];
 
-    const inputNamesArray = Array.isArray(inputNames)
-      ? inputNames
-      : [inputNames];
+    const inputIdsArray = Array.isArray(inputIds) ? inputIds : [inputIds];
 
     const filtered = allInputs.filter((input: CollectedInput) => {
-      const matchesInputName = inputNamesArray.includes(input.inputName);
-      const matchesComponent = componentName
-        ? input.componentName === componentName
+      const matchesInputId = inputIdsArray.includes(input.inputId);
+      const matchesComponent = componentId
+        ? input.componentId === componentId
         : true;
-      return matchesInputName && matchesComponent;
+      return matchesInputId && matchesComponent;
     });
 
     logger.dev(
-      `Filtered ${filtered.length} inputs for ${inputNamesArray.join(", ")}${
-        componentName ? ` in ${componentName}` : ""
+      `Filtered ${filtered.length} inputs for ${inputIdsArray.join(", ")}${
+        componentId ? ` in ${componentId}` : ""
       }`
     );
     return filtered;
@@ -200,7 +198,7 @@ class DbService {
   /**
    * Get the last N reports (not days) for specific inputs
    * @param reportType - The type of report
-   * @param inputNames - Single input name or array of input names
+   * @param inputIds - Single input ID or array of input IDs
    * @param count - Number of most recent reports to retrieve
    * @param componentName - Optional component name to filter by
    * @example
@@ -212,14 +210,14 @@ class DbService {
    */
   async getInputsLastNReports(
     reportType: string,
-    inputNames: string | string[],
+    inputIds: string | string[],
     count: number,
-    componentName?: string
+    componentId?: string
   ): Promise<CollectedInput[]> {
-    const allInputs = await this.getInputsByName(
+    const allInputs = await this.getInputsById(
       reportType,
-      inputNames,
-      componentName
+      inputIds,
+      componentId
     );
 
     // Sort by reportDate descending (newest first), then by reportNumber
@@ -249,7 +247,7 @@ class DbService {
   /**
    * Get inputs within a specific date range
    * @param reportType - The type of report
-   * @param inputNames - Single input name or array of input names
+   * @param inputIds - Single input name or array of input names
    * @param startDate - Start date in format "YYYY-MM-DD"
    * @param endDate - End date in format "YYYY-MM-DD"
    * @param componentName - Optional component name to filter by
@@ -272,15 +270,15 @@ class DbService {
    */
   async getInputsInDateRange(
     reportType: string,
-    inputNames: string | string[],
+    inputIds: string | string[],
     startDate: string,
     endDate: string,
-    componentName?: string
+    componentId?: string
   ): Promise<CollectedInput[]> {
-    const allInputs = await this.getInputsByName(
+    const allInputs = await this.getInputsById(
       reportType,
-      inputNames,
-      componentName
+      inputIds,
+      componentId
     );
 
     const filtered = allInputs.filter((input) => {
@@ -300,19 +298,17 @@ class DbService {
    */
   async getAvailableInputs(
     reportType: string,
-    componentName: string
+    componentId: string
   ): Promise<string[]> {
     await this.init();
     const db = await this.ensureDb();
     const allInputs = db.data!.reports[reportType] || [];
-    const inputNames = new Set(
+    const inputIds = new Set(
       allInputs
-        .filter(
-          (input: CollectedInput) => input.componentName === componentName
-        )
-        .map((input: CollectedInput) => input.inputName)
+        .filter((input: CollectedInput) => input.componentId === componentId)
+        .map((input: CollectedInput) => input.inputId)
     );
-    return Array.from(inputNames);
+    return Array.from(inputIds);
   }
 }
 

@@ -2,69 +2,37 @@ import { config } from "src/globals";
 import { ComponentBuilder } from "src/services/ComponentBuilder";
 import { dbService } from "src/services/DbService";
 import { statisticsService } from "src/services/StatisticsService";
-import { WellbeingParameter } from "src/types";
-
-/**
- * Get today's date in YYYY-MM-DD format
- */
-function getTodayDate(): string {
-  return new Date().toISOString().split("T")[0];
-}
-
-/**
- * Get date N days ago in YYYY-MM-DD format
- */
-function getDateDaysAgo(daysAgo: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-  return date.toISOString().split("T")[0];
-}
-
-/**
- * Calculate day number from a fixed epoch (e.g., 2020-01-01)
- */
-function getDayNumber(dateString: string): number {
-  const epoch = new Date("2020-01-01");
-  const date = new Date(dateString);
-  const diffTime = date.getTime() - epoch.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-}
-
-/**
- * Check if a parameter should be shown today based on its periodicity
- */
-function shouldShowParameter(param: WellbeingParameter): boolean {
-  // If no periodicity, show daily
-  if (!param.periodicity) {
-    return true;
-  }
-
-  // Calculate if today is the day to show this parameter
-  const today = getTodayDate();
-  const dayNumber = getDayNumber(today);
-
-  // Show if dayNumber is divisible by periodicity
-  return dayNumber % param.periodicity === 0;
-}
+import { scheduleEvaluator } from "src/services/ScheduleService/ScheduleEvaluator";
+import { WellbeingConfig, wellbeingConfigs } from "src/inputs";
+import { PeriodicityUnits as PU } from "src/services/ScheduleService";
+import { ReportTypes } from "src/reportDefinitions";
 
 export async function permaPlus() {
-  const componentName = "permaPlus";
-  const cb = new ComponentBuilder(componentName);
+  const componentId = "permaPlus";
+  const cb = new ComponentBuilder(componentId);
 
-  // Get active wellbeing parameters from config
-  const allParameters = config.wellbeingParameters.filter((p) => p.active);
+  // Use ScheduleEvaluator to filter parameters
+  const parameterFilterPromises = wellbeingConfigs.map(async (param) => {
+    const shouldShow = await scheduleEvaluator.shouldShowInput(param);
+    return shouldShow ? param : null;
+  });
 
-  // Filter to only show parameters that should appear today
-  const parametersToShow = allParameters.filter(shouldShowParameter);
+  const parametersToShow = (await Promise.all(parameterFilterPromises)).filter(
+    (p) => p !== null
+  ) as WellbeingConfig[];
 
   // Store metadata about periodicity for later use when saving
   const periodicityMap = new Map<string, number>();
   parametersToShow.forEach((param) => {
-    if (param.periodicity) {
-      periodicityMap.set(param.id, param.periodicity);
+    if (param.schedule?.showEvery?.unit === PU.Day) {
+      periodicityMap.set(param.id, param.schedule.showEvery.count);
     }
   });
+
+  // Get all parameters (not just ones to show) for statistics
+  const allParameters = wellbeingConfigs.filter(
+    (p) => !p.schedule || p.schedule.active !== false
+  );
 
   // Fetch historical data for all parameters (last 20 FILLED reports, not calendar days)
   // Use ALL parameters for statistics, not just ones shown today
@@ -76,7 +44,7 @@ export async function permaPlus() {
 
   try {
     const allData = await dbService.getInputsLastNReports(
-      "almostDailyReport",
+      ReportTypes.ALMOST_DAILY,
       parameterIds,
       20
     );
@@ -96,7 +64,7 @@ export async function permaPlus() {
     // Group data by parameter
     allParameters.forEach((param) => {
       const paramData = allData
-        .filter((input) => input.inputName === param.id)
+        .filter((input) => input.inputId === param.id)
         .map((input) => {
           // Convert string values to numbers, handling arrays from multicheckbox
           const val = Array.isArray(input.value) ? input.value[0] : input.value;
@@ -155,15 +123,17 @@ Rate honestly—awareness is the first step to change.
       avg5 !== undefined ? ` (last 5 reports: ${avg5.toFixed(1)})` : "";
 
     // Add periodicity info if applicable
-    const periodicityNote = param.periodicity
-      ? ` *(shown every ${param.periodicity} days)*`
+    const periodicityNote = param.schedule?.showEvery
+      ? ` *(shown every ${param.schedule.showEvery.count} ${
+          param.schedule.showEvery.unit
+        }${param.schedule.showEvery.count > 1 ? "s" : ""})*`
       : "";
 
     cb._md(`### ${param.label}${avgDisplay}${periodicityNote}`);
-    cb._md(`*${param.info}*`);
+    cb._md(`*${param.description}*`);
 
     // Use multicheckbox with singleChoice for radio button behavior
-    cb._multiCheckboxSC(param.id, ratingOptions, undefined, false);
+    cb._input(param.inputOptions);
   });
 
   // Add summary statistics section if we have data

@@ -18,6 +18,4 @@ export * from "./gratitudeAndSavoring";
 export * from "./mindfulMoment";
 export * from "./emotionAwareness";
 export * from "./permaPlus";
-export * from "./eveningReflection";
-export * from "./sleepPreparation";
 export * from "./messageForTomorrow";

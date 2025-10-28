@@ -1,8 +1,4 @@
 import { merge } from "lodash";
-import { Habit } from "./types";
-import { habits } from "./habits";
-import { wellbeingParameters } from "./wellbeingParameters";
-import { WellbeingParameter } from "./types";
 
 /**
  * Main configuration interface for PowerJournaling.
@@ -12,8 +8,6 @@ export interface PowerJournalConfig {
   projectDir: string;
   outputDir: string;
   coreDir: string;
-  habits: Habit[];
-  wellbeingParameters: WellbeingParameter[];
   devLogging: boolean;
   devMode: boolean;
   reportFileExtension?: string;
@@ -24,8 +18,6 @@ export const defaultConfig: PowerJournalConfig = {
   outputDir: "reports",
   coreDir: "core",
   devLogging: true,
-  habits: habits,
-  wellbeingParameters: wellbeingParameters,
   devMode: false,
   reportFileExtension: ".pjf.md",
 };

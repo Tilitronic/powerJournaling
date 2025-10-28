@@ -1,8 +1,9 @@
 import { ComponentBuilder } from "src/services/ComponentBuilder";
+import { inputsObj as ips } from "src/inputs";
 
-export function priorityPlanning() {
-  const componentName = "priorityPlanning";
-  const cb = new ComponentBuilder(componentName);
+export async function priorityPlanning() {
+  const componentId = "priorityPlanning";
+  const cb = new ComponentBuilder(componentId);
 
   cb._md("## 🎯 Priority Planning (📌 CORE - 3-5 min)");
 
@@ -30,25 +31,8 @@ _"You could leave life right now. Let that determine what you do and say and thi
     "Memento Mori + Implementation Intentions"
   );
 
-  cb._inputLabel(
-    "Death Reflection:",
-    '"If today were my last day, which pillar needs my attention most?"'
-  );
-  cb._text(
-    "priority_pillar",
-    "",
-    "e.g., 'Relationships - my family needs more of my presence and love'"
-  );
-
-  cb._inputLabel(
-    "My #1 Priority Today",
-    "*What is the ONE thing that matters most? When & where? If-then plan for obstacles?*"
-  );
-  cb._text(
-    "priority_plan",
-    "",
-    "e.g., Call mom and have a real conversation. At 7 PM after dinner, sitting in the quiet room with no distractions. If I feel awkward opening up, I'll remember she won't be here forever."
-  );
+  await cb._input(ips.priority_pillar);
+  await cb._input(ips.priority_plan);
 
   return cb.render();
 }

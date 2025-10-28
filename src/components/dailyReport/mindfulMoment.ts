@@ -1,8 +1,9 @@
 import { ComponentBuilder } from "src/services/ComponentBuilder";
+import { inputsObj as ips } from "src/inputs";
 
-export function mindfulMoment() {
-  const componentName = "mindfulMoment";
-  const cb = new ComponentBuilder(componentName);
+export async function mindfulMoment() {
+  const componentId = "mindfulMoment";
+  const cb = new ComponentBuilder(componentId);
 
   cb._md("## 🧘 Mindful Moment (💡 OPTIONAL - 2-3 min)");
 
@@ -63,7 +64,7 @@ When you recall being fully present—even for 5 seconds—you're training your 
     "That simple moment—THAT is life. Not achievements or plans. Just being fully alive, right here, right now."
   );
 
-  cb._boolean("mindful_pause_taken", "I have taken a mindful pause", false);
+  await cb._input(ips.mindful_pause_taken);
 
   cb._md('> _"The present moment is all you ever have."_ — Eckhart Tolle');
   cb._md('> _"When you wash the dishes, wash the dishes."_ — Thích Nhất Hạnh');

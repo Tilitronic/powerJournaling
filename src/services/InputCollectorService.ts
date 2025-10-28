@@ -8,8 +8,8 @@ import { valueExtractor } from "./ValueExtractor";
 const logger = useLogger(LNs.InputCollector);
 
 export interface CollectedInput {
-  componentName: string;
-  inputName: string;
+  componentId?: string;
+  inputId: string;
   type: string;
   value: string | number | boolean | string[] | null;
   label?: string;
@@ -86,8 +86,8 @@ export class InputCollectorService {
 
         // Map to CollectedInput and attach reportType, date, and number
         const collectedInputs: CollectedInput[] = extracted.map((e) => ({
-          componentName: e.componentName,
-          inputName: e.inputName,
+          componentId: e.componentId,
+          inputId: e.inputId,
           type: e.inputType ?? "unknown",
           value: e.value,
           errors: e.errors && e.errors.length > 0 ? e.errors : undefined,

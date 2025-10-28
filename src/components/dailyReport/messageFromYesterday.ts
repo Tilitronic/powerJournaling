@@ -1,22 +1,23 @@
 import { ComponentBuilder } from "src/services/ComponentBuilder";
 import { dbService } from "src/services/DbService";
+import { ReportTypes } from "src/reportDefinitions";
 
 export async function messageFromYesterday() {
-  const componentName = "messageFromYesterday";
-  const cb = new ComponentBuilder(componentName);
+  const componentId = "messageFromYesterday";
+  const cb = new ComponentBuilder(componentId);
 
   const lastData = await dbService.getInputsLastNReports(
-    "almostDailyReport",
+    ReportTypes.ALMOST_DAILY,
     ["message_for_tomorrow", "tomorrow_priority"],
     1 // Get the last report
   );
 
   // Separate message and priority
   const lastMessage = lastData.find(
-    (item) => item.inputName === "message_for_tomorrow"
+    (item) => item.inputId === "message_for_tomorrow"
   );
   const lastPriority = lastData.find(
-    (item) => item.inputName === "tomorrow_priority"
+    (item) => item.inputId === "tomorrow_priority"
   );
 
   const hasMessage =

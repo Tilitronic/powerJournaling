@@ -24,3 +24,11 @@ export const reportDefinitions = {
 } as const;
 
 export type ReportType = keyof typeof reportDefinitions;
+
+// Report type constants for easy reference
+export const ReportTypes = {
+  ALMOST_DAILY: "almostDailyReport",
+  TEN_DAYS: "10daysReport",
+  THIRTY_DAYS: "30daysReport",
+  ONE_FIFTY_DAYS: "150daysReport",
+} as const satisfies Record<string, ReportType>;

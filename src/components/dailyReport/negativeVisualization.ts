@@ -1,8 +1,9 @@
 import { ComponentBuilder } from "src/services/ComponentBuilder";
+import { inputsObj as ips } from "src/inputs";
 
-export function negativeVisualization() {
-  const componentName = "negativeVisualization";
-  const cb = new ComponentBuilder(componentName);
+export async function negativeVisualization() {
+  const componentId = "negativeVisualization";
+  const cb = new ComponentBuilder(componentId);
 
   cb._md("## 🪞 Negative Visualization (💡 OPTIONAL - 2 min)");
 
@@ -43,11 +44,7 @@ _"He robs present ills of their power who has perceived their coming beforehand.
     "4. **Open your eyes** — look around. You still have them. Feel that relief."
   );
 
-  cb._boolean(
-    "negative_visualization_done",
-    "I have practiced negative visualization",
-    false
-  );
+  await cb._input(ips.negative_visualization_done);
 
   return cb.render();
 }

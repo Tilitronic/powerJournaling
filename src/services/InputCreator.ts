@@ -16,8 +16,8 @@ export type InputType = (typeof InputsConst)[keyof typeof InputsConst];
 
 // Base properties shared by all inputs
 interface BaseInputOptions {
-  componentName: string;
-  inputName: string;
+  componentId?: string;
+  inputId: string;
   type: InputType;
 }
 
@@ -67,7 +67,7 @@ export class InputCreator {
    * Create a Markdown input wrapped in tags
    */
   createInput(opts: CreateInputOptions): string {
-    const { componentName, inputName, type } = opts;
+    const { componentId, inputId, type } = opts;
     let mdContent = "";
 
     try {
@@ -99,8 +99,8 @@ export class InputCreator {
           mdContent = options
             .map((opt) => {
               const value = tagsService.hiddenValue(
-                componentName,
-                inputName,
+                componentId,
+                inputId,
                 opt.value
               );
               return `- [ ] ${value} ${opt.label}`;
@@ -125,8 +125,8 @@ export class InputCreator {
     }
 
     return tagsService.input.wrap({
-      componentName,
-      inputName,
+      componentId,
+      inputId,
       content: mdContent,
       inputType: type,
     });

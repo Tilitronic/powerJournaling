@@ -1,6 +1,7 @@
 import { ComponentBuilder } from "src/services/ComponentBuilder";
 import { dbService } from "src/services/DbService";
 import { format, differenceInDays, subDays } from "date-fns";
+import { ReportTypes } from "src/reportDefinitions";
 
 /**
  * Shows consistency statistics - how many reports filled vs days passed.
@@ -11,7 +12,7 @@ export async function consistencyStats(): Promise<string> {
 
   try {
     // Get all reports from the database
-    const allInputs = await dbService.getReportInputs("almostDailyReport");
+    const allInputs = await dbService.getReportInputs(ReportTypes.ALMOST_DAILY);
 
     if (!allInputs || allInputs.length === 0) {
       // No data yet - this is the first report

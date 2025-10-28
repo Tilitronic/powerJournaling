@@ -1,6 +1,7 @@
-import { config } from "src/globals";
+import { wellbeingConfigs } from "src/inputs/wellbeing";
 import { dbService } from "./DbService";
 import { CollectedInput } from "./InputCollectorService";
+import { PeriodicityUnits as PU } from "src/services/ScheduleService";
 
 /**
  * Service to backfill wellbeing parameter values for past days
@@ -19,18 +20,22 @@ export class WellbeingBackfiller {
 
     for (const input of inputs) {
       // Check if this is a wellbeing parameter with periodicity
-      const parameter = config.wellbeingParameters.find(
-        (p) => p.id === input.inputName && p.active
+      const parameter = wellbeingConfigs.find(
+        (p) => p.id === input.inputId && p.schedule?.active !== false
       );
 
-      if (!parameter || !parameter.periodicity) {
+      if (!parameter || !parameter.schedule?.showEvery) {
         // Not a periodic parameter, keep as is
         expandedInputs.push(input);
         continue;
       }
 
       // This is a periodic parameter - backfill past days
-      const periodicity = parameter.periodicity;
+      // For now, only support day-based periodicity
+      const periodicity =
+        parameter.schedule.showEvery.unit === PU.Day
+          ? parameter.schedule.showEvery.count
+          : 1;
       const todayDate = input.reportDate;
 
       // Get all report dates from the past N days

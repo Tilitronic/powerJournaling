@@ -8,8 +8,8 @@ import { InputType } from "./InputCreator";
 import { useLogger, LNs } from "../globals";
 
 interface ExtractedInput {
-  componentName: string;
-  inputName: string;
+  componentId?: string;
+  inputId: string;
   inputType: InputType;
   value: string | number | boolean | string[] | null;
   errors: string[];
@@ -126,8 +126,8 @@ export class ValueExtractor {
         errors.push(...result.errors);
       }
       results.push({
-        componentName: meta.componentName,
-        inputName: meta.inputName,
+        componentId: meta.componentId,
+        inputId: meta.inputId,
         inputType: meta.inputType,
         value: result.value,
         errors: result.errors,
@@ -153,7 +153,7 @@ export class ValueExtractor {
   }
 
   private key(meta: any) {
-    return `${meta.componentName}::${meta.inputName}`;
+    return `${meta.componentId}::${meta.inputId}`;
   }
 
   private extractValue(
@@ -227,8 +227,8 @@ export class ValueExtractor {
           if (values.length > 1) {
             errors.push(
               `Multiple checked values for singleChoice input: ${
-                meta.componentName
-              }::${meta.inputName} [${values.join(", ")}]`
+                meta.componentId
+              }::${meta.inputId} [${values.join(", ")}]`
             );
           }
           value = values[0] ?? null;

@@ -1,16 +1,22 @@
-import { tagsService } from "./TagsService";
+// import { tagsService } from "./TagsService";
 import { inputCreator } from "./InputCreator";
 import type { CreateInputOptions } from "./InputCreator";
 import { InputsConst } from "./InputCreator";
 import { useLogger, LNs } from "../globals";
+import { Schedule } from "./ScheduleService";
+import { scheduleEvaluator } from "./ScheduleService/ScheduleEvaluator";
+import { tagsService } from "./TagsService";
+import type { InputConfig } from "src/inputs/types";
 
 export class ComponentBuilder {
-  private componentName: string;
+  private componentId: string;
   private content: string[] = [];
   private logger = useLogger(LNs.ComponentBuilder);
+  private componentSchedule: Schedule | null = null;
+  private hasRenderedInputs: boolean = false;
 
-  constructor(componentName: string) {
-    this.componentName = componentName;
+  constructor(componentId: string) {
+    this.componentId = componentId;
   }
 
   // --- Markdown ---
@@ -111,9 +117,61 @@ export class ComponentBuilder {
     return this;
   }
 
-  _input(opts: CreateInputOptions) {
-    const optsWithComponent = { ...opts, componentName: this.componentName };
-    this.content.push(inputCreator.createInput(optsWithComponent));
+  /**
+   * Set component-level schedule. Component will only render if schedule allows.
+   * @param scheduleOrInput - Either a Schedule object or an InputConfig to use its schedule
+   * @example
+   * cb.schedule({ daysOfWeek: [1, 3, 5] }) // Monday, Wednesday, Friday
+   * cb.schedule(ips.mindful_pause_taken) // Use schedule from that input
+   */
+  schedule(scheduleOrInput: Schedule | InputConfig) {
+    if ("schedule" in scheduleOrInput && scheduleOrInput.schedule) {
+      // It's an InputConfig, use its schedule
+      this.componentSchedule = scheduleOrInput.schedule;
+    } else {
+      // It's a Schedule object
+      this.componentSchedule = scheduleOrInput as Schedule;
+    }
+    return this;
+  }
+
+  async _input(opts: CreateInputOptions | InputConfig) {
+    // Check if it's an InputConfig (has 'id' and 'inputOptions' properties)
+    const isInputConfig = "id" in opts && "inputOptions" in opts;
+
+    if (isInputConfig) {
+      const config = opts as InputConfig;
+
+      // If schedule is configured, check if input should be shown
+      if (config.schedule) {
+        const shouldShow = await scheduleEvaluator.shouldShowInput(config);
+        if (!shouldShow) {
+          return this; // Skip this input - don't render it
+        }
+      }
+
+      // Track that we rendered an input
+      this.hasRenderedInputs = true;
+
+      // For non-boolean inputs, add label first
+      // Booleans have their own built-in label, so we skip _inputLabel for them
+      if (config.inputOptions.type !== InputsConst.boolean) {
+        this._inputLabel(config.label, config.description);
+      }
+
+      // Now add the actual input
+      const optsWithComponent = {
+        ...config.inputOptions,
+        componentId: this.componentId,
+      };
+      this.content.push(inputCreator.createInput(optsWithComponent));
+    } else {
+      // It's just CreateInputOptions, use directly (backward compatibility)
+      this.hasRenderedInputs = true;
+      const optsWithComponent = { ...opts, componentId: this.componentId };
+      this.content.push(inputCreator.createInput(optsWithComponent));
+    }
+
     return this;
   }
 
@@ -136,11 +194,11 @@ export class ComponentBuilder {
   }
 
   // --- Convenience methods ---
-  _text(inputName: string, defaultValue?: string, placeholder?: string) {
+  _text(inputId: string, defaultValue?: string, placeholder?: string) {
     const value = inputCreator.createInput({
-      componentName: this.componentName,
+      componentId: this.componentId,
       type: InputsConst.text,
-      inputName,
+      inputId,
       defaultValue,
       placeholder,
     });
@@ -149,15 +207,15 @@ export class ComponentBuilder {
     return this;
   }
 
-  _richText(inputName: string, defaultValue?: string, placeholder?: string) {
+  _richText(inputId: string, defaultValue?: string, placeholder?: string) {
     // Add visual top boundary (outside input tags)
     this.content.push("<center>· · · · · · · · · · · · · · · ·</center>");
 
     // Create the actual input (will be wrapped in tags by inputCreator)
     const value = inputCreator.createInput({
-      componentName: this.componentName,
+      componentId: this.componentId,
       type: InputsConst.richText,
-      inputName,
+      inputId,
       defaultValue,
       placeholder,
     });
@@ -169,11 +227,11 @@ export class ComponentBuilder {
     return this;
   }
 
-  _boolean(inputName: string, label: string, defaultValue?: boolean) {
+  _boolean(inputId: string, label: string, defaultValue?: boolean) {
     const value = inputCreator.createInput({
-      componentName: this.componentName,
+      componentId: this.componentId,
       type: InputsConst.boolean,
-      inputName,
+      inputId,
       label,
       defaultValue,
     });
@@ -181,11 +239,11 @@ export class ComponentBuilder {
     return this;
   }
 
-  _number(inputName: string, defaultValue?: number) {
+  _number(inputId: string, defaultValue?: number) {
     const value = inputCreator.createInput({
-      componentName: this.componentName,
+      componentId: this.componentId,
       type: InputsConst.number,
-      inputName,
+      inputId,
       defaultValue,
     });
     this.content.push(value);
@@ -193,15 +251,15 @@ export class ComponentBuilder {
   }
 
   _multiCheckbox(
-    inputName: string,
+    inputId: string,
     options: { label: string; value: string }[],
     defaultValue?: string[],
     collapsed?: boolean
   ) {
     const value = inputCreator.createInput({
-      componentName: this.componentName,
+      componentId: this.componentId,
       type: InputsConst.multicheckbox,
-      inputName,
+      inputId,
       options,
       defaultValue,
       collapsed,
@@ -211,15 +269,15 @@ export class ComponentBuilder {
   }
 
   _multiCheckboxSC(
-    inputName: string,
+    inputId: string,
     options: { label: string; value: string }[],
     defaultValue?: string[],
     collapsed?: boolean
   ) {
     const value = inputCreator.createInput({
-      componentName: this.componentName,
+      componentId: this.componentId,
       type: InputsConst.multicheckbox,
-      inputName,
+      inputId,
       options,
       singleChoice: true,
       defaultValue,
@@ -229,10 +287,40 @@ export class ComponentBuilder {
     return this;
   }
 
+  _nl() {
+    this.content.push("\n");
+    return this;
+  }
+
   // --- Render final component ---
-  render() {
+  async render() {
+    // If component has explicit schedule, check it first
+    if (this.componentSchedule) {
+      const shouldShow = await scheduleEvaluator.shouldShowInput({
+        id: this.componentId,
+        inputOptions: { inputId: this.componentId, type: InputsConst.text },
+        label: this.componentId,
+        schedule: this.componentSchedule,
+      });
+      if (!shouldShow) {
+        this.logger.dev("Component hidden by explicit schedule", {
+          componentId: this.componentId,
+        });
+        return "";
+      }
+    }
+
+    // If no inputs were rendered and no explicit schedule override,
+    // return empty string (component is all scheduled inputs that didn't show)
+    if (!this.hasRenderedInputs && !this.componentSchedule) {
+      this.logger.dev("Component hidden - no inputs rendered", {
+        componentId: this.componentId,
+      });
+      return "";
+    }
+
     const output = tagsService.component.wrap(
-      this.componentName,
+      this.componentId,
       this.content.join("\n")
     );
     this.logger.dev("Component rendered", { outputLength: output.length });

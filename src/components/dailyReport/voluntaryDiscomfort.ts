@@ -1,8 +1,9 @@
 import { ComponentBuilder } from "src/services/ComponentBuilder";
+import { inputsObj as ips } from "src/inputs";
 
-export function voluntaryDiscomfort() {
-  const componentName = "voluntaryDiscomfort";
-  const cb = new ComponentBuilder(componentName);
+export async function voluntaryDiscomfort() {
+  const componentId = "voluntaryDiscomfort";
+  const cb = new ComponentBuilder(componentId);
 
   cb._md("## 🧊 Voluntary Discomfort (💡 OPTIONAL - 2 min)");
 
@@ -37,33 +38,7 @@ _"Set aside a certain number of days to be content with little and practice pove
     "Stoic Resilience Training"
   );
 
-  cb._inputLabel("Today's Voluntary Discomfort", "(choose ONE)");
-  cb._md(
-    "- **Physical** — cold shower (30-60 sec), skip dessert, walk instead of drive"
-  );
-  cb._md(
-    "- **Social** — difficult conversation, saying no, asking for what you need"
-  );
-  cb._md(
-    "- **Habitual** — skip coffee/treat, no phone for 2 hrs, wake 30 min earlier"
-  );
-  cb._md("- **Environmental** — sit on floor, less heat/AC, simpler meal");
-
-  cb._inputLabel(
-    "Your choice",
-    "(be specific about what, when, and for how long)"
-  );
-  cb._text(
-    "voluntary_discomfort_choice",
-    "",
-    "e.g., 'Cold shower for 60 seconds after regular shower, at 7am'"
-  );
-
-  cb._boolean(
-    "voluntary_discomfort_done",
-    "I practiced voluntary discomfort today",
-    false
-  );
+  await cb._input(ips.voluntary_discomfort_practice);
 
   return cb.render();
 }

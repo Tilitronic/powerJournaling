@@ -16,12 +16,10 @@ import {
   mindfulMoment,
   emotionAwareness,
   permaPlus,
-  eveningReflection,
-  sleepPreparation,
   messageForTomorrow,
 } from "src/components/dailyReport";
 import { savingService } from "src/services/SavingService";
-import { componentScheduler } from "src/services/ComponentScheduler";
+import { ReportTypes } from "src/reportDefinitions";
 
 export async function buildDailyReport() {
   const noteFragments = [];
@@ -46,30 +44,14 @@ export async function buildDailyReport() {
     noteFragments.push(messageYesterday);
   }
 
-  noteFragments.push(morningReflection());
+  noteFragments.push(await morningReflection());
 
-  // Negative Visualization: Mon/Wed/Fri, or if shown yesterday but not completed
-  if (
-    await componentScheduler.shouldShowComponent(
-      "negative_visualization_done",
-      [1, 3, 5]
-    )
-  ) {
-    noteFragments.push(negativeVisualization());
-  }
+  noteFragments.push(await negativeVisualization());
 
   // mementoMori is now integrated into priorityPlanning
-  noteFragments.push(priorityPlanning());
+  noteFragments.push(await priorityPlanning());
 
-  // Voluntary Discomfort: Mon/Wed/Fri, or if shown yesterday but not completed
-  if (
-    await componentScheduler.shouldShowComponent(
-      "voluntary_discomfort_done",
-      [1, 3, 5]
-    )
-  ) {
-    noteFragments.push(voluntaryDiscomfort());
-  }
+  noteFragments.push(await voluntaryDiscomfort());
 
   // =============================================================================
   // 📋 DAILY HABITS
@@ -93,31 +75,21 @@ export async function buildDailyReport() {
   );
   noteFragments.push("\n---\n"); // Major section divider
 
-  noteFragments.push(accomplishmentsAndObstacles());
-  noteFragments.push(attentionAndWillpower());
-  noteFragments.push(gratitudeAndSavoring());
+  noteFragments.push(await accomplishmentsAndObstacles());
+  noteFragments.push(await attentionAndWillpower());
+  noteFragments.push(await gratitudeAndSavoring());
 
-  // Mindful Moment: Mon/Wed/Fri, or if shown yesterday but not completed
-  if (
-    await componentScheduler.shouldShowComponent(
-      "mindful_pause_taken",
-      [1, 3, 5]
-    )
-  ) {
-    noteFragments.push(mindfulMoment());
-  }
+  noteFragments.push(await mindfulMoment());
 
-  noteFragments.push(emotionAwareness());
+  noteFragments.push(await emotionAwareness());
   noteFragments.push(await permaPlus());
-  noteFragments.push(eveningReflection());
-  noteFragments.push(sleepPreparation());
-  noteFragments.push(messageForTomorrow());
+  noteFragments.push(await messageForTomorrow());
 
   // =============================================================================
   // Save the complete report
   // =============================================================================
   savingService.write({
-    type: "almostDailyReport",
+    type: ReportTypes.ALMOST_DAILY,
     data: noteFragments.join("\n"),
   });
 }

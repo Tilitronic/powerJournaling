@@ -3,8 +3,8 @@ import { InferTypeNode } from "typescript";
 import { useLogger, LNs } from "../globals";
 import { InputType } from "./InputCreator";
 interface InputWrapperOptions {
-  componentName: string;
-  inputName: string;
+  componentId?: string;
+  inputId: string;
   inputType: InputType;
   withNewLines?: boolean;
   content: string;
@@ -20,74 +20,90 @@ export class TagsService {
   private logger = useLogger(LNs.TagsService);
 
   public readonly component = {
-    start: (componentName: string) => {
-      const meta = { componentName };
+    start: (componentId?: string) => {
+      const meta = { componentId };
       this.logger.dev("Component start", meta);
-      return `<span class="${
+      return `<span class="$${
         TagsClassesConst.component
       } start" data-meta='${JSON.stringify(
         meta
       )}' style="display:none"></span>`;
     },
 
-    end: (componentName: string) => {
-      const meta = { componentName };
+    end: (componentId?: string) => {
+      const meta = { componentId };
       this.logger.dev("Component end", meta);
-      return `<span class="${
+      return `<span class="$${
         TagsClassesConst.component
       } end" data-meta='${JSON.stringify(meta)}' style="display:none"></span>`;
     },
 
-    wrap: (componentName: string, content: string, withNewLines = true) => {
+    wrap: (
+      componentId: string | undefined,
+      content: string,
+      withNewLines = true
+    ) => {
       const inner = withNewLines ? `\n${content}\n` : content;
-      this.logger.dev("Component wrap", { componentName, content });
+      this.logger.dev("Component wrap", { componentId, content });
       return (
-        this.component.start(componentName) +
+        this.component.start(componentId) +
         inner +
-        this.component.end(componentName)
+        this.component.end(componentId)
       );
     },
   };
 
   public readonly input = {
-    start: (componentName: string, inputName: string, inputType: InputType) => {
-      const meta = { componentName, inputName, inputType };
+    start: (
+      componentId: string | undefined,
+      inputId: string,
+      inputType: InputType
+    ) => {
+      const meta = { componentId, inputId, inputType };
       this.logger.dev("Input start", meta);
-      return `<span class="${
+      return `<span class="$${
         TagsClassesConst.input
       }" data-meta='${JSON.stringify(meta)}' style="display:none"></span>`;
     },
 
-    end: (componentName: string, inputName: string, inputType: InputType) => {
-      const meta = { componentName, inputName, inputType };
+    end: (
+      componentId: string | undefined,
+      inputId: string,
+      inputType: InputType
+    ) => {
+      const meta = { componentId, inputId, inputType };
       this.logger.dev("Input end", meta);
-      return `<span class="${
+      return `<span class="$${
         TagsClassesConst.input
       } end" data-meta='${JSON.stringify(meta)}' style="display:none"></span>`;
     },
 
     wrap: (opts: InputWrapperOptions) => {
       const {
-        componentName,
-        inputName,
+        componentId,
+        inputId,
         inputType,
         content,
         withNewLines = true,
       } = opts;
       const inner = withNewLines ? `\n${content}\n` : content;
-      this.logger.dev("Input wrap", { componentName, inputName, content });
+      this.logger.dev("Input wrap", { componentId, inputId, content });
       return (
-        this.input.start(componentName, inputName, inputType) +
+        this.input.start(componentId, inputId, inputType) +
         inner +
-        this.input.end(componentName, inputName, inputType)
+        this.input.end(componentId, inputId, inputType)
       );
     },
   };
 
-  hiddenValue = (componentName: string, inputName: string, value: string) => {
-    const meta = { componentName, inputName, value };
+  hiddenValue = (
+    componentId: string | undefined,
+    inputId: string,
+    value: string
+  ) => {
+    const meta = { componentId, inputId, value };
     this.logger.dev("Hidden value set", meta);
-    return `<span class="${
+    return `<span class="$${
       TagsClassesConst.hiddenValue
     }" data-meta='${JSON.stringify(meta)}' style="display:none"></span>`;
   };

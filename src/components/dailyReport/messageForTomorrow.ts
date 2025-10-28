@@ -1,8 +1,9 @@
 import { ComponentBuilder } from "src/services/ComponentBuilder";
+import { inputsObj as ips } from "src/inputs";
 
-export function messageForTomorrow() {
-  const componentName = "messageForTomorrow";
-  const cb = new ComponentBuilder(componentName);
+export async function messageForTomorrow() {
+  const componentId = "messageForTomorrow";
+  const cb = new ComponentBuilder(componentId);
 
   cb._md("## 💌 Message & Intention for Tomorrow (📌 CORE - 2 min)");
 
@@ -12,14 +13,14 @@ export function messageForTomorrow() {
 **Tomorrow's Priority**: What's the ONE thing that matters most? When and where will you do it?
 **Message to Future Self**: A reminder, encouragement, or lesson you don't want to forget.
 
-Keep it short and meaningful. Your future self will thank you. �`
+What can I prepare tonight to make tomorrow easier?
+
+Keep it short and meaningful. Your future self will thank you.`
   );
 
-  cb._inputLabel("Tomorrow's #1 Priority");
-  cb._text("tomorrow_priority");
-
-  cb._inputLabel("Message for Tomorrow");
-  cb._richText("message_for_tomorrow");
+  await cb._input(ips.tomorrow_priority);
+  await cb._input(ips.message_for_tomorrow);
+  await cb._input(ips.plan_next_day);
 
   return cb.render();
 }
