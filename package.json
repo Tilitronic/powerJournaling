@@ -1,7 +1,9 @@
 {
   "type": "module",
   "dependencies": {
+    "@types/asciichart": "^1.5.8",
     "asciichart": "^1.5.25",
+    "chartscii": "^3.2.0",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.2",
     "fs-extra": "^11.3.2",
@@ -34,7 +36,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/asciichart": "^1.5.8",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.20",
     "@types/lodash-es": "^4.17.12",

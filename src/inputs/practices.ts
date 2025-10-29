@@ -51,29 +51,6 @@ When faced with any situation today, ask yourself: "Is this within my control?" 
 _"Make the best use of what is in your power, and take the rest as it happens."_ — Epictetus`,
   },
   {
-    id: "wu_wei_practice",
-    label: "Taoist Practice. Wu Wei (Effortless Action)",
-    category: "taoist",
-    component: "morningReflection",
-    description:
-      "Wu Wei teaches effortless action: responding to life's obstacles with flexibility rather than rigid resistance.",
-    guide: `**The Core Principle:**
-From Taoism comes the wisdom of "flowing like water." Water doesn't fight obstacles – it adapts, flows around them, and finds a way through. When you stop resisting what you cannot change, you conserve energy and discover creative solutions.
-
-**How to Practice Wu Wei Today:**
-
-1. **When you encounter an obstacle, pause and ask:**
-   - "Can I change this?" → If yes, take calm action. If no, accept it.
-   - "What can I learn from this?"
-   - "How would water respond to this?"
-
-2. **Remember:** Fighting against unchangeable circumstances drains your energy. Flowing with them preserves it.
-
-3. **The shift:** From "This shouldn't be happening" to "This IS happening – how do I respond skillfully?"
-
-_"The rigid tree breaks in the wind. The flexible tree bends and survives."_ — Taoist wisdom`,
-  },
-  {
     id: "obstacle_is_way_practice",
     label: "Stoic Practice. The Obstacle Is The Way",
     category: "stoic",

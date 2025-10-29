@@ -35,22 +35,22 @@ const generateInputConfigs = (ip: InputPreconfig): InputConfig => {
 export const inputsPreconfigs: InputPreconfig[] = [
   // ==================== PLANNING ====================
   {
-    label: "Priority Life Pillar",
+    label: "What Matters Most (Memento Mori)",
     inputOptions: {
-      inputId: "priority_pillar",
+      inputId: "memento_mori_focus",
       type: InputsConst.text,
     },
     description:
-      "If today were my last day, which pillar needs attention most?",
+      "You will die. Your days are numbered. What truly matters? Which pillar deserves your limited time?",
   },
   {
     inputOptions: {
       inputId: "priority_plan",
       type: InputsConst.text,
     },
-    label: "My #1 Priority Today",
+    label: "My #1 Task Today",
     description:
-      "What is the ONE thing that matters most? When & where? If-then plan? What is the first two-minute action I will take to start it?",
+      "ONE concrete action serving what matters. When & where will I do it? What's my first 2-minute step?",
   },
   {
     inputOptions: {

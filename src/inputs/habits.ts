@@ -115,7 +115,9 @@ export const habitPreconfigs: HabitPreconfig[] = [
       target: {
         count: 1,
         per: { count: 1, unit: PU.Week },
+        // No keepShowing - hide after completing 1x per week
       },
+      daysOfWeek: [5, 6, 7], // Friday, Saturday, Sunday (1=Mon, 7=Sun)
       limit: {
         max: 20,
         per: { count: 6, unit: PU.Month },

@@ -204,7 +204,15 @@ export class ScheduleEvaluator {
     // Check specific days of week (overrides showEvery)
     if (schedule.daysOfWeek && schedule.daysOfWeek.length > 0) {
       const dayOfWeek = now.getDay(); // 0 = Sunday, 6 = Saturday
-      return schedule.daysOfWeek.includes(dayOfWeek);
+
+      // Convert ISO 8601 days (1-7, Mon-Sun) to JS days (0-6, Sun-Sat) if needed
+      const normalizedDays = schedule.daysOfWeek.map((day) => {
+        if (day === 7) return 0; // Sunday: 7 -> 0
+        if (day >= 1 && day <= 6) return day; // Mon-Sat: 1-6 -> 1-6
+        return day; // Already in 0-6 format (for backwards compatibility)
+      });
+
+      return normalizedDays.includes(dayOfWeek);
     }
 
     // Check specific dates of month

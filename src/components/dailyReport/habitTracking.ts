@@ -7,97 +7,6 @@ import { HabitConfig, habitConfigs } from "src/inputs";
 import { PeriodicityUnits as PU } from "src/services/ScheduleService";
 import { ReportTypes } from "src/reportDefinitions";
 
-/**
- * Get the start date of the current period for a habit
- */
-function getPeriodStartDate(habit: HabitConfig): string {
-  const now = new Date();
-
-  // Extract periodicity unit from schedule.target.per
-  const unit = habit.schedule?.target?.per.unit || PU.Day;
-
-  switch (unit) {
-    case PU.Day:
-      // For daily habits, period is just today
-      return now.toISOString().split("T")[0];
-
-    case PU.Week:
-      // Week starts on Monday
-      const dayOfWeek = now.getDay();
-      const monday = new Date(now);
-      monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-      return monday.toISOString().split("T")[0];
-
-    case PU.Month:
-      // Month starts on the 1st
-      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
-        2,
-        "0"
-      )}-01`;
-
-    case PU.Quarter:
-      // Quarter starts on Jan 1, Apr 1, Jul 1, or Oct 1
-      const quarter = Math.floor(now.getMonth() / 3);
-      const quarterStartMonth = quarter * 3 + 1;
-      return `${now.getFullYear()}-${String(quarterStartMonth).padStart(
-        2,
-        "0"
-      )}-01`;
-
-    case PU.Year:
-      // Year starts on Jan 1
-      return `${now.getFullYear()}-01-01`;
-
-    case PU.Decade:
-      // Decade starts on year ending in 0 (e.g., 2020, 2030)
-      const decadeStartYear = Math.floor(now.getFullYear() / 10) * 10;
-      return `${decadeStartYear}-01-01`;
-
-    default:
-      return now.toISOString().split("T")[0];
-  }
-}
-
-/**
- * Get the start date for a custom period (used for maxLimit calculations)
- */
-function getCustomPeriodStartDate(
-  periodicityMultiplier: number,
-  periodicityUnit: string
-): string {
-  const now = new Date();
-
-  switch (periodicityUnit) {
-    case PU.Day:
-      const daysAgo = new Date(now);
-      daysAgo.setDate(now.getDate() - periodicityMultiplier);
-      return daysAgo.toISOString().split("T")[0];
-
-    case PU.Week:
-      const weeksAgo = new Date(now);
-      weeksAgo.setDate(now.getDate() - periodicityMultiplier * 7);
-      return weeksAgo.toISOString().split("T")[0];
-
-    case PU.Month:
-      const monthsAgo = new Date(now);
-      monthsAgo.setMonth(now.getMonth() - periodicityMultiplier);
-      return monthsAgo.toISOString().split("T")[0];
-
-    case PU.Quarter:
-      const quartersAgo = new Date(now);
-      quartersAgo.setMonth(now.getMonth() - periodicityMultiplier * 3);
-      return quartersAgo.toISOString().split("T")[0];
-
-    case PU.Year:
-      const yearsAgo = new Date(now);
-      yearsAgo.setFullYear(now.getFullYear() - periodicityMultiplier);
-      return yearsAgo.toISOString().split("T")[0];
-
-    default:
-      return now.toISOString().split("T")[0];
-  }
-}
-
 export async function habitTracking() {
   const componentId = "habitTracking";
   const cb = new ComponentBuilder(componentId);
@@ -253,36 +162,19 @@ export async function habitTracking() {
             maxPeriodLabel = `${limitPerCount} ${limitPerUnit}s`;
           }
 
-          // Create visual progress bar (20 characters wide)
-          const barWidth = 20;
-          const filledWidth = Math.round((current / max) * barWidth);
-          const emptyWidth = barWidth - filledWidth;
-          const progressBar = "█".repeat(filledWidth) + "░".repeat(emptyWidth);
-
-          // Determine warning emoji and color based on percentage
-          let statusEmoji = "✅";
-          let warningText = "";
-          if (percentage >= 100) {
-            statusEmoji = "🚫";
-            warningText = " **LIMIT REACHED**";
-          } else if (percentage >= 80) {
-            statusEmoji = "⚠️";
-            warningText = " **Approaching limit**";
-          } else if (percentage >= 60) {
-            statusEmoji = "⚡";
-          }
-
+          // Simple, objective limit display
           cb._md(
-            `${statusEmoji} **Limit tracker:** ${current}/${max} times per ${maxPeriodLabel} · ${progressBar} ${percentage.toFixed(
+            `**Limit:** ${current}/${max} per ${maxPeriodLabel} (${percentage.toFixed(
               0
-            )}%${warningText}`
+            )}%)`
           );
         }
       }
     );
 
+    cb._nl();
     cb._md(
-      "**Wisdom** — missing once is an accident. Missing twice is the start of a pattern. Return gently."
+      "Missing once is an accident. Missing twice is the start of a pattern. Return gently."
     );
   } else {
     cb._md("*🎉 All habits completed for this period! Well done!*");

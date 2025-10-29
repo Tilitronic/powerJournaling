@@ -31,7 +31,7 @@ _"You could leave life right now. Let that determine what you do and say and thi
     "Memento Mori + Implementation Intentions"
   );
 
-  await cb._input(ips.priority_pillar);
+  await cb._input(ips.memento_mori_focus);
   await cb._input(ips.priority_plan);
 
   return cb.render();

@@ -9,8 +9,8 @@ export async function morningReflection() {
   practiceConfigs
     .filter((practice) => practice.component === componentName)
     .forEach((practice) => {
+      cb._foldable(practice.guide, practice.label);
       cb._input(practice.inputOptions);
-      cb._foldable(practice.guide, "Guide");
     });
 
   return cb.render();
