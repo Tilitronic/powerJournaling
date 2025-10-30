@@ -15,6 +15,8 @@ export async function messageForTomorrow() {
 
 What can I prepare tonight to make tomorrow easier?
 
+Which PERMA plus parameter needs special attention tomorrow?
+
 Keep it short and meaningful. Your future self will thank you.`
   );
 

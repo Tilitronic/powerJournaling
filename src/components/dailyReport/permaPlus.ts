@@ -109,13 +109,6 @@ Rate honestly—awareness is the first step to change.
 **Rate each dimension** (3 = Great, 2 = Adequate, 1 = Struggling):`
   );
 
-  // Create rating options
-  const ratingOptions = [
-    { label: "3 - Great", value: "3" },
-    { label: "2 - Adequate", value: "2" },
-    { label: "1 - Struggling", value: "1" },
-  ];
-
   // For each parameter TO SHOW TODAY, create a section with description, 5-report average, and rating
   parametersToShow.forEach((param) => {
     const avg5 = last5DayAverages.get(param.id);
@@ -223,15 +216,6 @@ Rate honestly—awareness is the first step to change.
       }
     }
   }
-
-  cb._divider();
-
-  cb._inputLabel("Quick Reflection", "Which area needs attention tomorrow?");
-  cb._text(
-    "perma_focus_tomorrow",
-    "",
-    "e.g., Relationships, Physical Wellbeing..."
-  );
 
   return cb.render();
 }

@@ -18,7 +18,6 @@ export const habitPreconfigs: HabitPreconfig[] = [
     cue: "After breakfast",
     reward: "More productive and organized day",
     schedule: {
-      active: true,
       target: {
         count: 1,
         per: { count: 1, unit: PU.Day },
@@ -31,7 +30,6 @@ export const habitPreconfigs: HabitPreconfig[] = [
     cue: "Any suitable time during the day",
     reward: "Better health, more energy, and improved mood",
     schedule: {
-      active: true,
       target: {
         count: 5,
         per: { count: 1, unit: PU.Week },
@@ -45,7 +43,6 @@ export const habitPreconfigs: HabitPreconfig[] = [
     cue: "After waking up",
     reward: "Increased energy and readiness for the day",
     schedule: {
-      active: true,
       target: {
         count: 1,
         per: { count: 1, unit: PU.Day },
@@ -58,7 +55,6 @@ export const habitPreconfigs: HabitPreconfig[] = [
     cue: "In the evening or during free time",
     reward: "Relaxation, joy, and stress relief",
     schedule: {
-      active: true,
       target: {
         count: 1,
         per: { count: 1, unit: PU.Day },
@@ -71,7 +67,6 @@ export const habitPreconfigs: HabitPreconfig[] = [
     cue: "At free from work personal time",
     reward: "Better focus and increasing ability to feel joy",
     schedule: {
-      active: true,
       target: {
         count: 7,
         per: { count: 10, unit: PU.Day },
@@ -85,7 +80,7 @@ export const habitPreconfigs: HabitPreconfig[] = [
     reward:
       "Happiness and healthy feelings expression from engaging with poetry",
     schedule: {
-      active: true,
+      daysOfWeek: [1, 5, 6, 7],
       target: {
         count: 3,
         per: { count: 1, unit: PU.Month },
@@ -98,7 +93,6 @@ export const habitPreconfigs: HabitPreconfig[] = [
     cue: "Dedicated learning time",
     reward: "Skill development, career growth, and problem-solving mastery",
     schedule: {
-      active: true,
       target: {
         count: 3,
         per: { count: 1, unit: PU.Week },
@@ -111,13 +105,11 @@ export const habitPreconfigs: HabitPreconfig[] = [
     cue: "Day off (if next day is also day off, then) in safe calm well prepared environment and mood",
     reward: "Self-care routine, relaxation, stress relief",
     schedule: {
-      active: true,
       target: {
         count: 1,
         per: { count: 1, unit: PU.Week },
-        // No keepShowing - hide after completing 1x per week
       },
-      daysOfWeek: [5, 6, 7], // Friday, Saturday, Sunday (1=Mon, 7=Sun)
+      daysOfWeek: [5, 6, 7],
       limit: {
         max: 20,
         per: { count: 6, unit: PU.Month },
@@ -137,7 +129,6 @@ export const habitPreconfigs: HabitPreconfig[] = [
     reward:
       "Better focus, reduced distractions, mental clarity, reclaimed time",
     schedule: {
-      active: true,
       target: {
         count: 3,
         per: { count: 1, unit: PU.Week },

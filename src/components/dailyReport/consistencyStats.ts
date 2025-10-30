@@ -41,11 +41,15 @@ export async function consistencyStats(): Promise<string> {
     ];
 
     const stats = periods.map(({ days, label }) => {
-      const cutoffDate = format(subDays(today, days - 1), "yyyy-MM-dd");
+      // Calculate how many days to actually look back (don't go before first report)
+      const actualDays = Math.min(days, totalDaysSinceStart);
+      const cutoffDate = format(subDays(today, actualDays - 1), "yyyy-MM-dd");
+
+      // Count reports in this period
       const reportsInPeriod = uniqueDates.filter(
         (date) => date >= cutoffDate
       ).length;
-      const actualDays = Math.min(days, totalDaysSinceStart);
+
       const percentage = Math.round((reportsInPeriod / actualDays) * 100);
 
       return {
@@ -53,6 +57,7 @@ export async function consistencyStats(): Promise<string> {
         reports: reportsInPeriod,
         days: actualDays,
         percentage,
+        shouldShow: actualDays >= Math.min(days, 7), // Show if at least 7 days or full period
       };
     });
 
@@ -65,13 +70,10 @@ export async function consistencyStats(): Promise<string> {
     // Build display
     const parts = [];
 
-    // Period stats
+    // Period stats (show if tracking for at least 7 days or full period)
     for (const stat of stats) {
-      const periodDays = parseInt(stat.label.replace("d", ""));
-      if (stat.days < periodDays) {
-        // Not enough days have passed yet
-        continue;
-      }
+      if (!stat.shouldShow) continue;
+
       const emoji =
         stat.percentage >= 80
           ? "🎉"
@@ -85,7 +87,7 @@ export async function consistencyStats(): Promise<string> {
       );
     }
 
-    // Add total
+    // Add total (always show)
     const totalEmoji =
       totalPercentage >= 80 ? "🏆" : totalPercentage >= 60 ? "⭐" : "🎯";
     parts.push(
@@ -94,6 +96,7 @@ export async function consistencyStats(): Promise<string> {
 
     cb._md(`📊 **Consistency Tracker** · ${parts.join(" · ")}`);
   } catch (err) {
+    console.error("Consistency stats error:", err);
     // If there's an error, show minimal message
     cb._md("📊 **Consistency Tracker** · Starting fresh!");
   }

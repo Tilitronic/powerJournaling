@@ -124,51 +124,44 @@ export async function habitTracking() {
         const isSimpleDaily =
           targetCount === 1 && perCount === 1 && perUnit === PU.Day;
 
-        let habitLabel: string;
+        // Build label with target and limit info
+        let labelParts: string[] = [habit.label];
 
-        if (isSimpleDaily) {
-          // For simple daily habits, just show the label without progress
-          habitLabel = habit.label;
-        } else {
-          // For all other habits, show progress
-          // Generate period label with proper singular/plural
+        // Add target info if not a simple daily habit
+        if (!isSimpleDaily) {
           let periodLabel: string;
           if (perCount === 1) {
             periodLabel = perUnit;
           } else {
-            // Add 's' for plural (day→days, week→weeks, etc.)
             periodLabel = `${perCount} ${perUnit}s`;
           }
-
-          // Show progress inline: "Exercise (2/5 per week)"
-          habitLabel = `${habit.label} (${completedCount}/${targetCount} per ${periodLabel})`;
-        }
-
-        cb._input(habit.inputOptions);
-
-        cb._md(`*Cue*: ${habit.cue} · *Reward*: ${habit.reward}`);
-
-        // Show max limit progress if defined
-        if (maxLimitProgress) {
-          const { current, max, percentage } = maxLimitProgress;
-
-          // Generate period label for max limit
-          let maxPeriodLabel: string;
-          const limitPerCount = habit.schedule?.limit?.per.count || 1;
-          const limitPerUnit = habit.schedule?.limit?.per.unit || "day";
-          if (limitPerCount === 1) {
-            maxPeriodLabel = limitPerUnit;
-          } else {
-            maxPeriodLabel = `${limitPerCount} ${limitPerUnit}s`;
-          }
-
-          // Simple, objective limit display
-          cb._md(
-            `**Limit:** ${current}/${max} per ${maxPeriodLabel} (${percentage.toFixed(
-              0
-            )}%)`
+          labelParts.push(
+            `target: ${completedCount}/${targetCount} per ${periodLabel}`
           );
         }
+
+        // Add limit info if present
+        if (maxLimitProgress) {
+          const { current, max } = maxLimitProgress;
+          const limitPerCount = habit.schedule?.limit?.per.count || 1;
+          const limitPerUnit = habit.schedule?.limit?.per.unit || "day";
+          const maxPeriodLabel =
+            limitPerCount === 1
+              ? limitPerUnit
+              : `${limitPerCount} ${limitPerUnit}s`;
+
+          labelParts.push(`limit: ${current}/${max} per ${maxPeriodLabel}`);
+        }
+
+        // Create updated input options with enriched label
+        const updatedInputOptions = {
+          ...habit.inputOptions,
+          label: labelParts.join(" · "),
+        };
+
+        cb._input(updatedInputOptions);
+
+        cb._md(`*Cue*: ${habit.cue} · *Reward*: ${habit.reward}`);
       }
     );
 
