@@ -16,7 +16,7 @@ Savor simple pleasures: friendship, beauty, learning, nature. Your role matters.
 
   cb._md("### Three Good Things Today");
 
-  await cb._input(ips.gratitudes);
+  cb._input(ips.gratitudes);
 
-  return cb.render();
+  return await cb.render();
 }

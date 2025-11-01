@@ -98,7 +98,50 @@ export class ValueExtractor {
     // Second pass: extract content for each input based on character positions
     for (const key in inputs) {
       const { meta, startPos, endPos, hiddenValues } = inputs[key];
+
+      // Handle missing start or end tags
       if (startPos === -1 || endPos === -1) {
+        // For text/richText inputs with only empty content or blockquote markers, treat as empty value
+        if (meta.inputType === "text" || meta.inputType === "richText") {
+          // Check if there's any content between tags that might be worth extracting
+          if (startPos !== -1 && endPos === -1) {
+            // Start tag exists but no end tag - try to find next input or end of content
+            const nextInputPos = this.findNextInputTagPosition(
+              markdown,
+              startPos
+            );
+            if (nextInputPos !== -1) {
+              const tempContent = markdown
+                .substring(startPos, nextInputPos)
+                .trim();
+              const cleaned = tempContent
+                .replace(/^>\s?/gm, "")
+                .replace(/<[^>]+>/g, "")
+                .trim();
+              if (!cleaned || cleaned === ">") {
+                // Empty or just blockquote marker - treat as empty, no warning
+                results.push({
+                  componentId: meta.componentId,
+                  inputId: meta.inputId,
+                  inputType: meta.inputType,
+                  value: null,
+                  errors: [],
+                });
+                continue;
+              }
+            }
+          }
+          // If no start tag or actual content exists, just treat as empty
+          results.push({
+            componentId: meta.componentId,
+            inputId: meta.inputId,
+            inputType: meta.inputType,
+            value: null,
+            errors: [],
+          });
+          continue;
+        }
+        // For other input types, log warning and skip
         logger.warn(`Input ${key} missing start or end tag, skipping`);
         continue;
       }
@@ -141,6 +184,20 @@ export class ValueExtractor {
     return results;
   }
 
+  /**
+   * Find the position of the next input tag (start or end) after a given position
+   * Returns -1 if no next tag found
+   */
+  private findNextInputTagPosition(markdown: string, fromPos: number): number {
+    const regex = new RegExp(
+      `<span[^>]*class="\\$${TagsClassesConst.input}[^"]*"`,
+      "g"
+    );
+    regex.lastIndex = fromPos;
+    const match = regex.exec(markdown);
+    return match ? match.index : -1;
+  }
+
   private getMeta(html: string): any | null {
     // Accepts both single and double quotes for data-meta
     const match = html.match(/data-meta=(?:'([^']+)'|"([^"]+)")/);
@@ -179,8 +236,18 @@ export class ValueExtractor {
         break;
       }
       case "text": {
+        // Remove technical prefix if present in metadata
+        let content = raw;
+        if (meta.technicalPrefix) {
+          // Remove the technical prefix from the beginning
+          const prefixPattern = meta.technicalPrefix.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          );
+          content = content.replace(new RegExp(`^${prefixPattern}`, "gm"), "");
+        }
         // Remove blockquote markers and HTML tags
-        const cleaned = raw
+        const cleaned = content
           .replace(/^>\s?/gm, "")
           .replace(/<[^>]+>/g, "") // Strip HTML tags
           .trim();
@@ -192,8 +259,17 @@ export class ValueExtractor {
         break;
       }
       case "richText": {
+        // Remove technical prefix if present in metadata
+        let content = raw;
+        if (meta.technicalPrefix) {
+          const prefixPattern = meta.technicalPrefix.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          );
+          content = content.replace(new RegExp(`^${prefixPattern}`, "gm"), "");
+        }
         // Remove HTML tags from rich text
-        const cleaned = raw.replace(/<[^>]+>/g, "").trim();
+        const cleaned = content.replace(/<[^>]+>/g, "").trim();
         if (meta.required && !cleaned) {
           errors.push("Rich text input is required");
         }
@@ -238,7 +314,17 @@ export class ValueExtractor {
         break;
       }
       case "number": {
-        const match = raw.match(/(?<!\d)(\d+(?:[.,]\d+)?)/);
+        // Remove technical prefix if present in metadata
+        let content = raw;
+        if (meta.technicalPrefix) {
+          const prefixPattern = meta.technicalPrefix.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          );
+          content = content.replace(new RegExp(`^${prefixPattern}`, "gm"), "");
+        }
+
+        const match = content.match(/(?<!\d)(\d+(?:[.,]\d+)?)/);
         if (!match) {
           // No number found - only error if required
           if (meta.required) {
@@ -276,6 +362,40 @@ export class ValueExtractor {
     }
 
     return { value, errors };
+  }
+
+  /**
+   * Extract report metadata from markdown content
+   * Returns null if no metadata found
+   */
+  public extractReportMetadata(markdown: string): {
+    reportType: string;
+    reportDate: string;
+    reportNumber: string;
+    [key: string]: string;
+  } | null {
+    try {
+      const tree = unified().use(remarkParse).parse(markdown);
+      let metadata: any = null;
+
+      visit(tree, (node: any) => {
+        if (node.type === "html") {
+          const value = node.value as string;
+          if (value.includes(TagsClassesConst.reportMetadata)) {
+            const meta = this.getMeta(value);
+            if (meta) {
+              metadata = meta;
+              return false; // Stop visiting once found
+            }
+          }
+        }
+      });
+
+      return metadata;
+    } catch (error) {
+      logger.error("Failed to extract report metadata", { error });
+      return null;
+    }
   }
 }
 

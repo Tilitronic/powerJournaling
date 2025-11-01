@@ -25,17 +25,17 @@ Remember: You control your **effort, attitude, and response** — not outcomes.`
 
   cb._fancyTitle("Wins & Accomplishments", "🏆");
 
-  await cb._input(ips.accomplishments);
+  cb._input(ips.accomplishments);
 
   cb._fancyTitle("Obstacles & The Way Forward", "⚔️");
 
-  await cb._input(ips.obstacles);
+  cb._input(ips.obstacles);
 
-  await cb._input(ips.if_then_plan);
+  cb._input(ips.if_then_plan);
 
   cb._md(
     "**Stoic Wisdom**: This obstacle is not blocking your path—it IS the path. It's revealing where you need to grow."
   );
 
-  return cb.render();
+  return await cb.render();
 }

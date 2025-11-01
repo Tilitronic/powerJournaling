@@ -64,10 +64,10 @@ When you recall being fully present—even for 5 seconds—you're training your 
     "That simple moment—THAT is life. Not achievements or plans. Just being fully alive, right here, right now."
   );
 
-  await cb._input(ips.mindful_pause_taken);
+  cb._input(ips.mindful_pause_taken);
 
   cb._md('> _"The present moment is all you ever have."_ — Eckhart Tolle');
   cb._md('> _"When you wash the dishes, wash the dishes."_ — Thích Nhất Hạnh');
 
-  return cb.render();
+  return await cb.render();
 }

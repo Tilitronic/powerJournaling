@@ -3,6 +3,7 @@ import { reportDefinitions } from "../reportDefinitions";
 import { config, obApp, useLogger, LNs } from "../globals";
 import { format } from "date-fns";
 import type { TFile, TFolder } from "obsidian";
+import { tagsService } from "./TagsService";
 
 const logger = useLogger(LNs.SavingService);
 
@@ -119,7 +120,7 @@ export const savingService = {
     content?: string;
     open?: boolean; // optional, default is true
   }) {
-    const content = options.data ?? options.content;
+    let content = options.data ?? options.content;
     if (!content) throw new Error("No content provided for write()");
 
     const folder = this.reportFolders[options.type];
@@ -140,6 +141,34 @@ export const savingService = {
       logger.warn(`File already exists: ${filePath}. Skipping write.`);
       return filePath;
     }
+
+    // Generate report metadata and prepend to content
+    const now = new Date();
+    const reportDate = format(now, "yyyy-MM-dd"); // ISO format for database
+    const reportNumber = indexStr;
+    const metadata = {
+      reportType: options.type,
+      reportDate,
+      reportNumber,
+    };
+
+    logger.info(`[SavingService] Generated metadata`, { metadata });
+
+    // Add metadata tag at the beginning
+    const metadataTag = tagsService.reportMetadata.wrap(
+      JSON.stringify(metadata)
+    );
+    logger.info(`[SavingService] Metadata tag created`, {
+      tagLength: metadataTag.length,
+    });
+    logger.dev(
+      `[SavingService] Metadata tag content: ${metadataTag.substring(0, 300)}`
+    );
+
+    content = metadataTag + "\n\n" + content;
+    logger.info(
+      `[SavingService] Content length after adding metadata: ${content.length}`
+    );
 
     logger.info(`Writing new file: ${filePath}`);
     const file = await obApp.vault.create(filePath, content);

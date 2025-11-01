@@ -8,12 +8,14 @@ interface InputWrapperOptions {
   inputType: InputType;
   withNewLines?: boolean;
   content: string;
+  technicalPrefix?: string;
 }
 
 export const TagsClassesConst = {
   component: "mdc-component",
   input: "mdc-input",
   hiddenValue: "mdc-hidden-value",
+  reportMetadata: "mdc-report-metadata",
 } as const;
 
 export class TagsService {
@@ -57,9 +59,10 @@ export class TagsService {
     start: (
       componentId: string | undefined,
       inputId: string,
-      inputType: InputType
+      inputType: InputType,
+      technicalPrefix?: string
     ) => {
-      const meta = { componentId, inputId, inputType };
+      const meta = { componentId, inputId, inputType, technicalPrefix };
       this.logger.dev("Input start", meta);
       return `<span class="$${
         TagsClassesConst.input
@@ -69,9 +72,10 @@ export class TagsService {
     end: (
       componentId: string | undefined,
       inputId: string,
-      inputType: InputType
+      inputType: InputType,
+      technicalPrefix?: string
     ) => {
-      const meta = { componentId, inputId, inputType };
+      const meta = { componentId, inputId, inputType, technicalPrefix };
       this.logger.dev("Input end", meta);
       return `<span class="$${
         TagsClassesConst.input
@@ -85,13 +89,14 @@ export class TagsService {
         inputType,
         content,
         withNewLines = true,
+        technicalPrefix,
       } = opts;
       const inner = withNewLines ? `\n${content}\n` : content;
       this.logger.dev("Input wrap", { componentId, inputId, content });
       return (
-        this.input.start(componentId, inputId, inputType) +
+        this.input.start(componentId, inputId, inputType, technicalPrefix) +
         inner +
-        this.input.end(componentId, inputId, inputType)
+        this.input.end(componentId, inputId, inputType, technicalPrefix)
       );
     },
   };
@@ -106,6 +111,12 @@ export class TagsService {
     return `<span class="$${
       TagsClassesConst.hiddenValue
     }" data-meta='${JSON.stringify(meta)}' style="display:none"></span>`;
+  };
+
+  public readonly reportMetadata = {
+    wrap: (metadataJson: string) => {
+      return `<span class="$${TagsClassesConst.reportMetadata}" data-meta='${metadataJson}' style="display:none"></span>`;
+    },
   };
 }
 

@@ -69,13 +69,15 @@ export class InputCreator {
   createInput(opts: CreateInputOptions): string {
     const { componentId, inputId, type } = opts;
     let mdContent = "";
+    let technicalPrefix = "";
 
     try {
       switch (type) {
         case InputsConst.text:
         case InputsConst.richText: {
           const value = opts.defaultValue ?? "";
-          mdContent = `> ${value}`;
+          technicalPrefix = "> ";
+          mdContent = `${technicalPrefix}${value}`;
           break;
         }
 
@@ -111,7 +113,8 @@ export class InputCreator {
 
         case InputsConst.number: {
           const value = opts.defaultValue ?? "";
-          mdContent = `> {Number} ${value}`;
+          technicalPrefix = "> {Number} ";
+          mdContent = `${technicalPrefix}${value}`;
           break;
         }
 
@@ -129,6 +132,7 @@ export class InputCreator {
       inputId,
       content: mdContent,
       inputType: type,
+      technicalPrefix,
     });
   }
 

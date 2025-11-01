@@ -53,59 +53,8 @@ export async function habitTracking() {
     } | null;
   }>;
 
-  // Fetch historical data for statistics (only for habits we're showing)
-  const habitIds = habitsToShow.map((hp) => hp.habit.id);
-  let showStatistics = false;
-
-  try {
-    const allHabitData = await dbService.getInputsLastNReports(
-      ReportTypes.ALMOST_DAILY,
-      habitIds,
-      10
-    );
-
-    // Only show statistics section if we have data for at least one habit
-    showStatistics = allHabitData.length > 0;
-
-    if (showStatistics) {
-      cb._md("## 📊 Habit Statistics (Last 10 Reports)");
-
-      // Show statistics for each habit that we're displaying today
-      for (const { habit } of habitsToShow) {
-        const habitData = allHabitData.filter(
-          (input) => input.inputId === habit.id
-        );
-
-        if (habitData.length >= 2) {
-          // Only show if we have at least 2 data points
-          const values = habitData.map(
-            (input) => input.value as boolean | null
-          );
-
-          const stats = statisticsService.booleanStatistics(values);
-          const sparkline = statisticsService.createSparkline(
-            values.map((v) => (v === true ? 1 : 0))
-          );
-
-          // Compact statistics display - single line
-          cb._md(
-            `**${habit.label}:** ${stats.truePercentage.toFixed(0)}% (${
-              stats.trueCount
-            }/${stats.count}) · ${sparkline} · ${
-              stats.currentStreakType === "true" ? "✨" : "❄️"
-            } ${stats.currentStreak} streak`
-          );
-        }
-      }
-
-      cb._divider();
-    }
-  } catch (error) {
-    console.error("Failed to fetch habit statistics:", error);
-  }
-
   // Today's habits section
-  cb._md("## ✅ Today's Habits (📌 CORE - 1 min)");
+  cb._md("## ✅ Today's Habits (📌 CORE)");
 
   cb._foldable(
     `**Atomic Habits** — every habit = Cue → Craving → Response → Reward.
@@ -173,5 +122,60 @@ export async function habitTracking() {
     cb._md("*🎉 All habits completed for this period! Well done!*");
   }
 
-  return cb.render();
+  // Fetch historical data for detailed statistics (only for habits we're showing)
+  const habitIds = habitsToShow.map((hp) => hp.habit.id);
+  let showStatistics = false;
+
+  try {
+    const allHabitData = await dbService.getInputsLastNReports({
+      inputIds: habitIds,
+      count: 10,
+    });
+
+    // Only show statistics section if we have data for at least one habit
+    showStatistics = allHabitData.length > 0;
+
+    if (showStatistics) {
+      cb._divider();
+
+      let statisticsContent = "";
+
+      // Build statistics for each habit that we're displaying today
+      for (const { habit } of habitsToShow) {
+        const habitData = allHabitData.filter(
+          (input) => input.inputId === habit.id
+        );
+
+        if (habitData.length >= 2) {
+          // Only show if we have at least 2 data points
+          const values = habitData.map(
+            (input) => input.value as boolean | null
+          );
+
+          const stats = statisticsService.booleanStatistics(values);
+          const sparkline = statisticsService.createSparkline(
+            values.map((v) => (v === true ? 1 : 0))
+          );
+
+          // Compact statistics display - single line
+          statisticsContent += `**${
+            habit.label
+          }:** ${stats.truePercentage.toFixed(0)}% (${stats.trueCount}/${
+            stats.count
+          }) · ${sparkline} · ${
+            stats.currentStreakType === "true" ? "✨" : "❄️"
+          } ${stats.currentStreak} streak\n`;
+        }
+      }
+
+      cb._foldable(
+        statisticsContent.trim(),
+        "📊 Habit Statistics (Last 10 Reports)"
+      );
+    }
+  } catch (error) {
+    console.error("Failed to fetch habit statistics:", error);
+  }
+
+  return await cb.render();
 }

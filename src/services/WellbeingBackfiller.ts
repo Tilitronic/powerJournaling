@@ -98,7 +98,22 @@ export class WellbeingBackfiller {
    * Get date N days ago from a reference date
    */
   private getDateDaysAgo(daysAgo: number, fromDate: string): string {
+    // Handle empty or invalid date strings
+    if (!fromDate || fromDate.trim() === "") {
+      console.warn(
+        `Invalid fromDate provided to getDateDaysAgo: "${fromDate}". Using today's date.`
+      );
+      fromDate = new Date().toISOString().split("T")[0];
+    }
+
     const date = new Date(fromDate);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.error(`Invalid date string: "${fromDate}". Using today's date.`);
+      return new Date().toISOString().split("T")[0];
+    }
+
     date.setDate(date.getDate() - daysAgo);
     return date.toISOString().split("T")[0];
   }

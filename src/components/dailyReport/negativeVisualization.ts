@@ -44,7 +44,7 @@ _"He robs present ills of their power who has perceived their coming beforehand.
     "4. **Open your eyes** — look around. You still have them. Feel that relief."
   );
 
-  await cb._input(ips.negative_visualization_done);
+  cb._input(ips.negative_visualization_done);
 
-  return cb.render();
+  return await cb.render();
 }

@@ -20,9 +20,9 @@ Which PERMA plus parameter needs special attention tomorrow?
 Keep it short and meaningful. Your future self will thank you.`
   );
 
-  await cb._input(ips.tomorrow_priority);
-  await cb._input(ips.message_for_tomorrow);
-  await cb._input(ips.plan_next_day);
+  cb._input(ips.tomorrow_priority);
+  cb._input(ips.message_for_tomorrow);
+  cb._input(ips.plan_next_day);
 
-  return cb.render();
+  return await cb.render();
 }

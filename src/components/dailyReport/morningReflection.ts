@@ -13,5 +13,5 @@ export async function morningReflection() {
       cb._input(practice.inputOptions);
     });
 
-  return cb.render();
+  return await cb.render();
 }

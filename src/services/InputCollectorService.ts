@@ -48,7 +48,16 @@ export class InputCollectorService {
           continue;
         }
 
-        const lastFile = files.sort().reverse()[0];
+        // Sort by report number (5-digit part) to get the latest report
+        // Format: 063-29.10.2025-00001-almostDailyReport.pjf.md
+        const sortedFiles = files.sort((a, b) => {
+          const aMatch = a.match(/-(\d{5})-/);
+          const bMatch = b.match(/-(\d{5})-/);
+          if (!aMatch || !bMatch) return 0;
+          return parseInt(bMatch[1]) - parseInt(aMatch[1]); // Descending order
+        });
+
+        const lastFile = sortedFiles[0];
         if (!lastFile.includes(reportType)) {
           logger.warn(
             `Newest file "${lastFile}" in folder "${folderPath}" does not match report type: ${reportType}`
@@ -81,6 +90,31 @@ export class InputCollectorService {
 
         logger.dev(`Reading file: "${filePath}"`);
         const content = await obApp.vault.read(file as any);
+
+        logger.info(`[InputCollector] File content length: ${content.length}`);
+        logger.dev(
+          `[InputCollector] First 500 chars: ${content.substring(0, 500)}`
+        );
+
+        // Try to extract report metadata from the file content
+        const reportMetadata = valueExtractor.extractReportMetadata(content);
+        logger.info(`[InputCollector] Extracted metadata`, { reportMetadata });
+
+        // Use metadata from file if available, otherwise fall back to filename parsing
+        if (reportMetadata) {
+          reportDate = reportMetadata.reportDate;
+          reportNumber = reportMetadata.reportNumber;
+          logger.info(
+            `[InputCollector] Using report metadata from file: date=${reportDate}, number=${reportNumber}`
+          );
+        } else {
+          logger.warn(
+            `[InputCollector] No metadata found in file, using filename parsing: ${lastFile}`
+          );
+          logger.warn(
+            `[InputCollector] Fallback - reportDate=${reportDate}, reportNumber=${reportNumber}`
+          );
+        }
 
         const extracted = valueExtractor.extract(content);
 

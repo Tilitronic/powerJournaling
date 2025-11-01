@@ -38,7 +38,7 @@ _"Set aside a certain number of days to be content with little and practice pove
     "Stoic Resilience Training"
   );
 
-  await cb._input(ips.voluntary_discomfort_practice);
+  cb._input(ips.voluntary_discomfort_practice);
 
-  return cb.render();
+  return await cb.render();
 }

@@ -43,11 +43,10 @@ export async function permaPlus() {
   let dateRange = { first: "", last: "", reportCount: 0 };
 
   try {
-    const allData = await dbService.getInputsLastNReports(
-      ReportTypes.ALMOST_DAILY,
-      parameterIds,
-      20
-    );
+    const allData = await dbService.getInputsLastNReports({
+      inputIds: parameterIds,
+      count: 20,
+    });
 
     // Extract date range for context
     if (allData.length > 0) {
@@ -217,5 +216,5 @@ Rate honestly—awareness is the first step to change.
     }
   }
 
-  return cb.render();
+  return await cb.render();
 }

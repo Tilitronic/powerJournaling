@@ -17,14 +17,14 @@ No judgment—just awareness and learning.`
 
   cb._md("### Today's Emotional Landscape");
 
-  await cb._input(ips.strongest_emotion);
-  await cb._input(ips.emotion_trigger);
-  await cb._input(ips.emotion_response);
-  await cb._input(ips.better_emotion_response);
+  cb._input(ips.strongest_emotion);
+  cb._input(ips.emotion_trigger);
+  cb._input(ips.emotion_response);
+  cb._input(ips.better_emotion_response);
 
   cb._md(
     '> **Practice** — when strong emotions arise, pause and label: _"I\'m feeling [emotion]."_ This creates space between feeling and reaction.'
   );
 
-  return cb.render();
+  return await cb.render();
 }

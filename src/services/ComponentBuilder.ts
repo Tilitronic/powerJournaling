@@ -8,21 +8,26 @@ import { scheduleEvaluator } from "./ScheduleService/ScheduleEvaluator";
 import { tagsService } from "./TagsService";
 import type { InputConfig } from "src/inputs/types";
 
+interface ContentItem {
+  md: string;
+  schedule?: Schedule;
+  isInput?: boolean; // Track if this item is an input
+}
+
 export class ComponentBuilder {
   private componentId: string;
-  private content: string[] = [];
+  private content: ContentItem[] = [];
   private logger = useLogger(LNs.ComponentBuilder);
   private componentSchedule: Schedule | null = null;
-  private hasRenderedInputs: boolean = false;
 
   constructor(componentId: string) {
     this.componentId = componentId;
   }
 
   // --- Markdown ---
-  _md(md: string | (() => string)) {
+  _md(md: string | (() => string), schedule?: Schedule) {
     const value = typeof md === "function" ? md() : md;
-    this.content.push(value);
+    this.content.push({ md: value, schedule });
     return this;
   }
 
@@ -31,8 +36,8 @@ export class ComponentBuilder {
    * Add a simple subsection divider (three asterisks).
    * Use for separating subsections WITHIN a component.
    */
-  _divider() {
-    this.content.push("\n***\n");
+  _divider(schedule?: Schedule) {
+    this.content.push({ md: "\n***\n", schedule });
     return this;
   }
 
@@ -40,18 +45,20 @@ export class ComponentBuilder {
    * Add a fancy centered title using HTML center tag.
    * @param title - Title text to display
    * @param emoji - Optional emoji to include (default: ⚛︎)
+   * @param schedule - Optional schedule to control when this appears
    * @example
    * _fancyTitle("Wins & Accomplishments", "🏆")
    * // Produces:
    * // <center>🏆 Wins & Accomplishments 🏆</center>
    */
-  _fancyTitle(title?: string, emoji: string = "⚛︎") {
+  _fancyTitle(title?: string, emoji: string = "⚛︎", schedule?: Schedule) {
     if (title) {
-      this.content.push(
-        `<center>${emoji} <strong>${title}</strong> ${emoji}</center>`
-      );
+      this.content.push({
+        md: `<center>${emoji} <strong>${title}</strong> ${emoji}</center>`,
+        schedule,
+      });
     } else {
-      this.content.push("---");
+      this.content.push({ md: "---", schedule });
     }
     return this;
   }
@@ -68,27 +75,29 @@ export class ComponentBuilder {
    * Renders beautifully in Obsidian with auto-width.
    * @param title - Title text
    * @param emoji - Emoji to use
+   * @param schedule - Optional schedule to control when this appears
    * @example
    * _themedDivider("Today's Accomplishments", "🏆")
    * // Produces: ### 🏆 Today's Accomplishments
    */
-  _themedDivider(title: string, emoji: string) {
-    this.content.push(`### ${emoji} ${title}`);
+  _themedDivider(title: string, emoji: string, schedule?: Schedule) {
+    this.content.push({ md: `### ${emoji} ${title}`, schedule });
     return this;
   }
 
   /**
    * Add a blockquote divider - renders as a nice accent line.
    * @param text - Optional text to include in the blockquote
+   * @param schedule - Optional schedule to control when this appears
    * @example
    * _blockquoteDivider("✦ Section Break ✦")
    * // Produces: > ✦ Section Break ✦
    */
-  _blockquoteDivider(text?: string) {
+  _blockquoteDivider(text?: string, schedule?: Schedule) {
     if (text) {
-      this.content.push(`> ${text}`);
+      this.content.push({ md: `> ${text}`, schedule });
     } else {
-      this.content.push("> ---");
+      this.content.push({ md: "> ---", schedule });
     }
     return this;
   }
@@ -98,13 +107,14 @@ export class ComponentBuilder {
    * Add a foldable callout box. Automatically wraps content in "> [!note]- Title" syntax (collapsed by default).
    * @param content - The guidance text (can be multiline). Required.
    * @param title - Optional custom title (default: "Guidance")
+   * @param schedule - Optional schedule to control when this appears
    * @example
    * _foldable("**Stoicism**: Focus on what you can control.\n**Taoist Wu Wei**: Flow like water.")
    * // Produces: > [!note]- Guidance
    * //           > **Stoicism**: Focus on what you can control.
    * //           > **Taoist Wu Wei**: Flow like water.
    */
-  _foldable(content: string, title: string = "Guidance") {
+  _foldable(content: string, title: string = "Guidance", schedule?: Schedule) {
     // Split content into lines and prefix each with "> " for Obsidian callout syntax
     const lines = content.split("\n");
     const formattedLines = lines.map((line: string) => `> ${line}`);
@@ -112,8 +122,8 @@ export class ComponentBuilder {
     // Use [!note]- to make the callout collapsed by default
     const guidanceText = `> [!note]- ${title}\n${formattedLines.join("\n")}`;
 
-    this.content.push(guidanceText);
-    this.content.push("");
+    this.content.push({ md: guidanceText, schedule });
+    this.content.push({ md: "", schedule });
     return this;
   }
 
@@ -135,23 +145,12 @@ export class ComponentBuilder {
     return this;
   }
 
-  async _input(opts: CreateInputOptions | InputConfig) {
+  _input(opts: CreateInputOptions | InputConfig) {
     // Check if it's an InputConfig (has 'id' and 'inputOptions' properties)
     const isInputConfig = "id" in opts && "inputOptions" in opts;
 
     if (isInputConfig) {
       const config = opts as InputConfig;
-
-      // If schedule is configured, check if input should be shown
-      if (config.schedule) {
-        const shouldShow = await scheduleEvaluator.shouldShowInput(config);
-        if (!shouldShow) {
-          return this; // Skip this input - don't render it
-        }
-      }
-
-      // Track that we rendered an input
-      this.hasRenderedInputs = true;
 
       // For non-boolean inputs, add label first
       // Booleans have their own built-in label, so we skip _inputLabel for them
@@ -159,12 +158,16 @@ export class ComponentBuilder {
         this._inputLabel(config.label, config.description);
       }
 
-      // Now add the actual input
+      // Now add the actual input with schedule, marked as input
       const optsWithComponent = {
         ...config.inputOptions,
         componentId: this.componentId,
       };
-      this.content.push(inputCreator.createInput(optsWithComponent));
+      this.content.push({
+        md: inputCreator.createInput(optsWithComponent),
+        schedule: config.schedule,
+        isInput: true, // Mark as input
+      });
 
       // Add newline after text/number inputs for proper spacing with following content
       // (especially important before markdown like foldables that start with ">")
@@ -174,13 +177,15 @@ export class ComponentBuilder {
         config.inputOptions.type !== InputsConst.multicheckbox;
 
       if (needsSpacing) {
-        this.content.push("");
+        this.content.push({ md: "" });
       }
     } else {
       // It's just CreateInputOptions, use directly (backward compatibility)
-      this.hasRenderedInputs = true;
       const optsWithComponent = { ...opts, componentId: this.componentId };
-      this.content.push(inputCreator.createInput(optsWithComponent));
+      this.content.push({
+        md: inputCreator.createInput(optsWithComponent),
+        isInput: true, // Mark as input
+      });
     }
 
     return this;
@@ -200,7 +205,7 @@ export class ComponentBuilder {
    */
   _inputLabel(name: string, optionalText?: string) {
     const label = optionalText ? `**${name}** ${optionalText}` : `**${name}**`;
-    this.content.push(label);
+    this.content.push({ md: label });
     return this;
   }
 
@@ -213,14 +218,16 @@ export class ComponentBuilder {
       defaultValue,
       placeholder,
     });
-    this.content.push(value);
-    this.content.push("");
+    this.content.push({ md: value });
+    this.content.push({ md: "" });
     return this;
   }
 
   _richText(inputId: string, defaultValue?: string, placeholder?: string) {
     // Add visual top boundary (outside input tags)
-    this.content.push("<center>· · · · · · · · · · · · · · · ·</center>");
+    this.content.push({
+      md: "<center>· · · · · · · · · · · · · · · ·</center>",
+    });
 
     // Create the actual input (will be wrapped in tags by inputCreator)
     const value = inputCreator.createInput({
@@ -230,10 +237,12 @@ export class ComponentBuilder {
       defaultValue,
       placeholder,
     });
-    this.content.push(value);
+    this.content.push({ md: value });
 
     // Add visual bottom boundary (outside input tags)
-    this.content.push("<center>· · · · · · · · · · · · · · · ·</center>");
+    this.content.push({
+      md: "<center>· · · · · · · · · · · · · · · ·</center>",
+    });
 
     return this;
   }
@@ -246,7 +255,7 @@ export class ComponentBuilder {
       label,
       defaultValue,
     });
-    this.content.push(value);
+    this.content.push({ md: value });
     return this;
   }
 
@@ -257,7 +266,7 @@ export class ComponentBuilder {
       inputId,
       defaultValue,
     });
-    this.content.push(value);
+    this.content.push({ md: value });
     return this;
   }
 
@@ -275,7 +284,7 @@ export class ComponentBuilder {
       defaultValue,
       collapsed,
     });
-    this.content.push(value);
+    this.content.push({ md: value });
     return this;
   }
 
@@ -294,12 +303,12 @@ export class ComponentBuilder {
       defaultValue,
       collapsed,
     });
-    this.content.push(value);
+    this.content.push({ md: value });
     return this;
   }
 
   _nl() {
-    this.content.push("\n");
+    this.content.push({ md: "\n" });
     return this;
   }
 
@@ -321,20 +330,73 @@ export class ComponentBuilder {
       }
     }
 
-    // If no inputs were rendered and no explicit schedule override,
-    // return empty string (component is all scheduled inputs that didn't show)
-    if (!this.hasRenderedInputs && !this.componentSchedule) {
-      this.logger.dev("Component hidden - no inputs rendered", {
-        componentId: this.componentId,
+    // Evaluate all content items and filter by schedule
+    const evaluatedContent: string[] = [];
+    let hasInputs = false;
+    let renderedInputCount = 0;
+
+    for (const item of this.content) {
+      // Track if this component has any inputs at all
+      if (item.isInput) {
+        hasInputs = true;
+      }
+
+      // If no schedule, always include
+      if (!item.schedule) {
+        evaluatedContent.push(item.md);
+        if (item.isInput) renderedInputCount++;
+        continue;
+      }
+
+      // Check if scheduled item should show
+      const shouldShow = await scheduleEvaluator.shouldShowInput({
+        id: `${this.componentId}_item`,
+        inputOptions: {
+          inputId: `${this.componentId}_item`,
+          type: InputsConst.text,
+        },
+        label: `${this.componentId}_item`,
+        schedule: item.schedule,
       });
+
+      if (shouldShow) {
+        evaluatedContent.push(item.md);
+        if (item.isInput) renderedInputCount++;
+      }
+    }
+
+    // If component has inputs but none were rendered after schedule evaluation, hide component
+    if (hasInputs && renderedInputCount === 0) {
+      this.logger.dev(
+        "Component hidden - has inputs but none passed schedule evaluation",
+        {
+          componentId: this.componentId,
+        }
+      );
+      return "";
+    }
+
+    // If no content after evaluation, return empty
+    if (evaluatedContent.length === 0) {
+      this.logger.dev(
+        "Component hidden - no content after schedule evaluation",
+        {
+          componentId: this.componentId,
+        }
+      );
       return "";
     }
 
     const output = tagsService.component.wrap(
       this.componentId,
-      this.content.join("\n")
+      evaluatedContent.join("\n")
     );
-    this.logger.dev("Component rendered", { outputLength: output.length });
+    this.logger.dev("Component rendered", {
+      outputLength: output.length,
+      itemsEvaluated: this.content.length,
+      itemsRendered: evaluatedContent.length,
+      inputsRendered: renderedInputCount,
+    });
     return output;
   }
 }

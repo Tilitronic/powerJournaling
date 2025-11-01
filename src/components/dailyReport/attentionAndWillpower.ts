@@ -17,16 +17,16 @@ Track patterns. Design better environments. Restore your willpower.`
 
   cb._fancyTitle("Attention Reflection", "👁️");
 
-  await cb._input(ips.main_distraction);
-  await cb._input(ips.flow_moments);
+  cb._input(ips.main_distraction);
+  cb._input(ips.flow_moments);
 
   cb._fancyTitle("Willpower Reflection", "💪");
 
-  await cb._input(ips.willpower_challenge);
+  cb._input(ips.willpower_challenge);
 
   cb._md(
     "**Insight** — you can't control urges, but you can control your environment. Make good choices the easy choices."
   );
 
-  return cb.render();
+  return await cb.render();
 }

@@ -4,6 +4,7 @@ import {
   CollectedInput,
 } from "./InputCollectorService";
 import { config, useLogger, LNs, obApp } from "../globals";
+import { ReportTypes } from "../reportDefinitions";
 import type { TFile } from "obsidian";
 
 // Define the shape of the database
@@ -197,23 +198,41 @@ class DbService {
 
   /**
    * Get the last N reports (not days) for specific inputs
-   * @param reportType - The type of report
-   * @param inputIds - Single input ID or array of input IDs
-   * @param count - Number of most recent reports to retrieve
-   * @param componentName - Optional component name to filter by
+   * @param params - Query parameters
+   * @param params.inputIds - Single input ID or array of input IDs
+   * @param params.count - Number of most recent reports to retrieve
+   * @param params.componentId - Optional component name to filter by
+   * @param params.reportType - The type of report (defaults to almostDailyReport)
    * @example
-   * // Get last 10 reports where exercise was logged
-   * const last10 = await dbService.getInputsLastNReports("almostDailyReport", "exercise", 10);
+   * // Get last 10 reports where exercise was logged (from almostDailyReport)
+   * const last10 = await dbService.getInputsLastNReports({ inputIds: "exercise", count: 10 });
    *
    * // Get last 20 reports with multiple habits
-   * const habits = await dbService.getInputsLastNReports("almostDailyReport", ["exercise", "dayPlanning"], 20);
+   * const habits = await dbService.getInputsLastNReports({
+   *   inputIds: ["exercise", "dayPlanning"],
+   *   count: 20
+   * });
+   *
+   * // Get from a different report type
+   * const tenDays = await dbService.getInputsLastNReports({
+   *   inputIds: "exercise",
+   *   count: 5,
+   *   reportType: "10daysReport"
+   * });
    */
-  async getInputsLastNReports(
-    reportType: string,
-    inputIds: string | string[],
-    count: number,
-    componentId?: string
-  ): Promise<CollectedInput[]> {
+  async getInputsLastNReports(params: {
+    inputIds: string | string[];
+    count: number;
+    componentId?: string;
+    reportType?: string;
+  }): Promise<CollectedInput[]> {
+    const {
+      inputIds,
+      count,
+      componentId,
+      reportType = ReportTypes.ALMOST_DAILY,
+    } = params;
+
     const allInputs = await this.getInputsById(
       reportType,
       inputIds,

@@ -27,11 +27,15 @@ export async function consistencyStats(): Promise<string> {
       .sort()
       .reverse();
 
-    // Find the first report date
+    // Find the first and last report dates
     const firstReportDate = uniqueDates[uniqueDates.length - 1];
+    const lastReportDate = uniqueDates[0];
     const firstDate = new Date(firstReportDate);
-    const today = new Date();
-    const totalDaysSinceStart = differenceInDays(today, firstDate) + 1;
+    const lastDate = new Date(lastReportDate);
+
+    // Count days from first report to last report (inclusive)
+    // Don't count today if no report yet
+    const totalDaysSinceStart = differenceInDays(lastDate, firstDate) + 1;
 
     // Calculate statistics for different time periods
     const periods = [
@@ -43,7 +47,11 @@ export async function consistencyStats(): Promise<string> {
     const stats = periods.map(({ days, label }) => {
       // Calculate how many days to actually look back (don't go before first report)
       const actualDays = Math.min(days, totalDaysSinceStart);
-      const cutoffDate = format(subDays(today, actualDays - 1), "yyyy-MM-dd");
+      // Use lastDate instead of today - we count up to the last filled report
+      const cutoffDate = format(
+        subDays(lastDate, actualDays - 1),
+        "yyyy-MM-dd"
+      );
 
       // Count reports in this period
       const reportsInPeriod = uniqueDates.filter(
@@ -101,5 +109,5 @@ export async function consistencyStats(): Promise<string> {
     cb._md("📊 **Consistency Tracker** · Starting fresh!");
   }
 
-  return cb.render();
+  return await cb.render();
 }
