@@ -76,7 +76,7 @@ export class InputCreator {
         case InputsConst.text:
         case InputsConst.richText: {
           const value = opts.defaultValue ?? "";
-          technicalPrefix = "> ";
+          technicalPrefix = ">";
           mdContent = `${technicalPrefix}${value}`;
           break;
         }

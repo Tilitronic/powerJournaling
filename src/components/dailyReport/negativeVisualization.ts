@@ -1,11 +1,14 @@
 import { ComponentBuilder } from "src/services/ComponentBuilder";
 import { inputsObj as ips } from "src/inputs";
+import { dbService } from "src/services/DbService";
+import { ReportTypes } from "src/reportDefinitions";
+import { subMonths, format } from "date-fns";
 
 export async function negativeVisualization() {
   const componentId = "negativeVisualization";
   const cb = new ComponentBuilder(componentId);
 
-  cb._md("## 🪞 Negative Visualization (💡 OPTIONAL - 2 min)");
+  cb._md("## 🪞 Negative Visualization (💡 OPTIONAL)");
 
   cb._foldable(
     `**Praemeditatio Malorum** — Ancient Stoic gratitude practice
@@ -44,7 +47,49 @@ _"He robs present ills of their power who has perceived their coming beforehand.
     "4. **Open your eyes** — look around. You still have them. Feel that relief."
   );
 
-  cb._input(ips.negative_visualization_done);
+  // Get top 10 most frequently visualized things from last 6 months
+  try {
+    const allInputs = await dbService.getInputsById(
+      ReportTypes.ALMOST_DAILY,
+      "negative_visualization"
+    );
+
+    if (allInputs && allInputs.length > 0) {
+      // Filter to last 6 months
+      const sixMonthsAgo = format(subMonths(new Date(), 6), "yyyy-MM-dd");
+      const recentInputs = allInputs.filter(
+        (input) => input.reportDate >= sixMonthsAgo && input.value
+      );
+
+      if (recentInputs.length > 0) {
+        // Count frequencies (normalize to lowercase)
+        const frequencyMap = new Map<string, number>();
+        recentInputs.forEach((input) => {
+          const value = String(input.value).trim().toLowerCase();
+          if (value) {
+            frequencyMap.set(value, (frequencyMap.get(value) || 0) + 1);
+          }
+        });
+
+        // Sort by frequency and get top 10
+        const topItems = Array.from(frequencyMap.entries())
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map(([item, count]) => ({ item, count }));
+
+        if (topItems.length > 0) {
+          cb._md("\n**Your Most Visualized (Last 6 Months):**");
+          topItems.forEach(({ item, count }) => {
+            cb._md(`- ${item} (${count}×)`);
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching negative visualization history:", err);
+  }
+
+  cb._input(ips.negative_visualization);
 
   return await cb.render();
 }

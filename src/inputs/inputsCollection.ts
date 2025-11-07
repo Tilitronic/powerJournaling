@@ -187,10 +187,10 @@ export const inputsPreconfigs: InputPreconfig[] = [
   // ==================== STOIC EXERCISES ====================
   {
     inputOptions: {
-      inputId: "negative_visualization_done",
-      type: InputsConst.boolean,
+      inputId: "negative_visualization",
+      type: InputsConst.text,
     },
-    label: "I practiced Negative Visualization",
+    label: "What you visualized",
     description: "5 min reflection on what I could lose",
     schedule: {
       daysOfWeek: [1, 3, 5], // Monday, Wednesday, Friday

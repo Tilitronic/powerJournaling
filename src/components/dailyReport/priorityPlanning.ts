@@ -1,5 +1,8 @@
 import { ComponentBuilder } from "src/services/ComponentBuilder";
 import { inputsObj as ips } from "src/inputs";
+import { dbService } from "src/services/DbService";
+import { ReportTypes } from "src/reportDefinitions";
+import { subDays, format } from "date-fns";
 
 export async function priorityPlanning() {
   const componentId = "priorityPlanning";
@@ -32,7 +35,38 @@ _"You could leave life right now. Let that determine what you do and say and thi
   );
 
   cb._input(ips.memento_mori_focus);
-  cb._input(ips.priority_plan);
+
+  // Check if there's a tomorrow_priority from yesterday's report
+  let showPriorityPlan = true;
+
+  try {
+    // Get yesterday's date
+    const yesterday = format(subDays(new Date(), 1), "yyyy-MM-dd");
+
+    // Get all tomorrow_priority inputs from yesterday
+    const yesterdayPriorities = await dbService.getInputsInDateRange(
+      ReportTypes.ALMOST_DAILY,
+      "tomorrow_priority",
+      yesterday,
+      yesterday
+    );
+
+    // If there's a non-empty priority from yesterday, don't show priority_plan
+    const hasYesterdayPriority = yesterdayPriorities.some(
+      (input) => input.value && (input.value as string).trim().length > 0
+    );
+
+    if (hasYesterdayPriority) {
+      showPriorityPlan = false;
+    }
+  } catch (err) {
+    console.error("Error checking yesterday's priority:", err);
+    // On error, show the input anyway
+  }
+
+  if (showPriorityPlan) {
+    cb._input(ips.priority_plan);
+  }
 
   return await cb.render();
 }

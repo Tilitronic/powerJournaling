@@ -62,12 +62,36 @@ export async function consistencyStats(): Promise<string> {
 
       return {
         label,
+        requestedDays: days,
         reports: reportsInPeriod,
         days: actualDays,
         percentage,
-        shouldShow: actualDays >= Math.min(days, 7), // Show if at least 7 days or full period
+        shouldShow: false, // Will be calculated below
       };
     });
+
+    // Determine which periods to show:
+    // 1. Don't show periods where we don't have enough days tracked yet
+    // 2. Don't show periods that are covered by a smaller period (when actualDays match)
+    for (let i = 0; i < stats.length; i++) {
+      const current = stats[i];
+
+      // Don't show if we haven't reached the requested period yet
+      if (current.days < current.requestedDays) {
+        continue;
+      }
+
+      // Don't show if a smaller period already covers the same range
+      const smallerPeriodCoversAll = stats
+        .slice(0, i)
+        .some((prev) => prev.shouldShow && prev.days === current.days);
+
+      if (smallerPeriodCoversAll) {
+        continue;
+      }
+
+      current.shouldShow = true;
+    }
 
     // Total statistics
     const totalReports = uniqueDates.length;

@@ -236,19 +236,19 @@ export class ValueExtractor {
         break;
       }
       case "text": {
-        // Remove technical prefix if present in metadata
+        // Remove technical prefix from the start of each line
         let content = raw;
         if (meta.technicalPrefix) {
-          // Remove the technical prefix from the beginning
+          // Escape special regex characters in the prefix
           const prefixPattern = meta.technicalPrefix.replace(
             /[.*+?^${}()|[\]\\]/g,
             "\\$&"
           );
+          // Remove prefix from start of each line (^ with 'gm' flags)
           content = content.replace(new RegExp(`^${prefixPattern}`, "gm"), "");
         }
-        // Remove blockquote markers and HTML tags
+        // Remove HTML tags only (don't remove > separately - that's what technicalPrefix does)
         const cleaned = content
-          .replace(/^>\s?/gm, "")
           .replace(/<[^>]+>/g, "") // Strip HTML tags
           .trim();
         if (meta.required && !cleaned) {
@@ -259,16 +259,17 @@ export class ValueExtractor {
         break;
       }
       case "richText": {
-        // Remove technical prefix if present in metadata
+        // Remove technical prefix from the start of each line
         let content = raw;
         if (meta.technicalPrefix) {
           const prefixPattern = meta.technicalPrefix.replace(
             /[.*+?^${}()|[\]\\]/g,
             "\\$&"
           );
+          // Remove prefix from start of each line (^ with 'gm' flags)
           content = content.replace(new RegExp(`^${prefixPattern}`, "gm"), "");
         }
-        // Remove HTML tags from rich text
+        // Remove HTML tags only
         const cleaned = content.replace(/<[^>]+>/g, "").trim();
         if (meta.required && !cleaned) {
           errors.push("Rich text input is required");
