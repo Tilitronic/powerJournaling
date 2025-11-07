@@ -18,7 +18,46 @@ const logger = useLogger(LNs.FileService);
  */
 export async function onStart() {
   try {
-    const todayNote = `${format(new Date(), "dd.MM.yyyy")}.md`;
+    const now = new Date();
+    const currentHour = now.getHours();
+    const todayNote = `${format(now, "dd.MM.yyyy")}.md`;
+
+    // Early morning abort (00:00 - 03:59) - do minimal work and exit
+    if (currentHour >= 0 && currentHour < 4) {
+      logger.info(
+        `Current time is ${format(
+          now,
+          "HH:mm"
+        )} (before 04:00) - aborting report creation`
+      );
+
+      // Delete both yesterday's and today's script-triggering notes
+      const coreDir = `${config.projectDir}/${config.coreDir}`;
+      const folder = obApp.vault.getAbstractFileByPath(coreDir);
+
+      if (folder && "children" in folder) {
+        const datePattern = /^\d{2}\.\d{2}\.\d{4}\.md$/;
+        for (const child of folder.children as any[]) {
+          if (
+            "extension" in child &&
+            child.extension === "md" &&
+            datePattern.test(child.name)
+          ) {
+            logger.dev(
+              `Deleting script-triggering note (early morning abort): ${child.path}`
+            );
+            await obApp.vault.delete(child);
+          }
+        }
+      }
+
+      logger.info(
+        "Report creation aborted. Please open after 04:00 to create today's report."
+      );
+      return; // Exit early - do nothing else
+    }
+
+    // Normal flow (after 04:00) - collect yesterday's data and create today's report
 
     // 1. Collect inputs from yesterday and delete empty reports
     const collectedInputs = await deleteEmptyReports();
