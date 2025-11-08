@@ -149,9 +149,9 @@ export class ValueExtractor {
       // Extract substring from markdown
       const rawContent = markdown.substring(startPos, endPos).trim();
 
-      // Remove HTML spans from the content
+      // Remove HTML spans from the content (including closing tags)
       const cleanedContent = rawContent
-        .replace(/<span[^>]*>.*?<\/span>/gs, "")
+        .replace(/<\/?span[^>]*>/gs, "") // Remove both opening and closing span tags
         .trim();
 
       // Extract hidden values that fall within this input's boundaries
@@ -238,16 +238,37 @@ export class ValueExtractor {
       case "text": {
         // Remove technical prefix from the start of each line
         let content = raw;
+
+        // Check if raw content is just the technical prefix (empty input)
+        if (
+          meta.technicalPrefix &&
+          raw.trim() === meta.technicalPrefix.trim()
+        ) {
+          value = null;
+          break;
+        }
+
         if (meta.technicalPrefix) {
-          // Escape special regex characters in the prefix
-          const prefixPattern = meta.technicalPrefix.replace(
+          // Get the base prefix without trailing spaces
+          const basePrefix = meta.technicalPrefix.trim();
+          // Escape special regex characters in the base prefix
+          const escapedPrefix = basePrefix.replace(
             /[.*+?^${}()|[\]\\]/g,
             "\\$&"
           );
-          // Remove prefix from start of each line (^ with 'gm' flags)
-          content = content.replace(new RegExp(`^${prefixPattern}`, "gm"), "");
+          // Remove prefix from start of each line (with optional spaces after)
+          // This handles both ">text" and "> text" formats
+          content = content.replace(
+            new RegExp(`^${escapedPrefix}\\s*`, "gm"),
+            ""
+          );
+        } else {
+          // Fallback: if no technicalPrefix in metadata (old reports), remove common prefixes
+          // This handles backwards compatibility with reports created before technicalPrefix was added
+          content = content.replace(/^>\s*/gm, ""); // Remove blockquote markers and following spaces
         }
-        // Remove HTML tags only (don't remove > separately - that's what technicalPrefix does)
+
+        // Remove HTML tags and trim
         const cleaned = content
           .replace(/<[^>]+>/g, "") // Strip HTML tags
           .trim();
@@ -255,27 +276,51 @@ export class ValueExtractor {
           errors.push("Text input is required");
         }
         if (meta.placeholder && cleaned === meta.placeholder) value = null;
-        else value = cleaned;
+        else value = cleaned || null; // Set to null if empty string
         break;
       }
       case "richText": {
         // Remove technical prefix from the start of each line
         let content = raw;
+
+        // Check if raw content is just the technical prefix (empty input)
+        if (
+          meta.technicalPrefix &&
+          raw.trim() === meta.technicalPrefix.trim()
+        ) {
+          value = null;
+          break;
+        }
+
         if (meta.technicalPrefix) {
-          const prefixPattern = meta.technicalPrefix.replace(
+          // Get the base prefix without trailing spaces
+          const basePrefix = meta.technicalPrefix.trim();
+          // Escape special regex characters in the base prefix
+          const escapedPrefix = basePrefix.replace(
             /[.*+?^${}()|[\]\\]/g,
             "\\$&"
           );
-          // Remove prefix from start of each line (^ with 'gm' flags)
-          content = content.replace(new RegExp(`^${prefixPattern}`, "gm"), "");
+          // Remove prefix from start of each line (with optional spaces after)
+          // This handles both ">text" and "> text" formats
+          content = content.replace(
+            new RegExp(`^${escapedPrefix}\\s*`, "gm"),
+            ""
+          );
+        } else {
+          // Fallback: if no technicalPrefix in metadata (old reports), remove common prefixes
+          // This handles backwards compatibility with reports created before technicalPrefix was added
+          content = content.replace(/^>\s*/gm, ""); // Remove blockquote markers and following spaces
         }
-        // Remove HTML tags only
-        const cleaned = content.replace(/<[^>]+>/g, "").trim();
+
+        // Remove HTML tags and trim
+        const cleaned = content
+          .replace(/<[^>]+>/g, "") // Strip HTML tags
+          .trim();
         if (meta.required && !cleaned) {
           errors.push("Rich text input is required");
         }
         if (meta.placeholder && cleaned === meta.placeholder) value = null;
-        else value = cleaned;
+        else value = cleaned || null; // Set to null if empty string
         break;
       }
       case "multicheckbox": {

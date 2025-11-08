@@ -47,7 +47,7 @@ export async function messageFromYesterday() {
     const priorityText = lastPriority.value as string;
     const priorityDate = formatDate(lastPriority.reportDate);
     cb._md(`### 🎯 Today's Priority (set ${priorityDate})`);
-    cb._md(`> ${priorityText}`);
+    cb._md(`**${priorityText}**`);
   }
 
   // Show message if exists
@@ -55,7 +55,7 @@ export async function messageFromYesterday() {
     const messageText = lastMessage.value as string;
     const messageDate = formatDate(lastMessage.reportDate);
     cb._md(`### 💌 Message (from ${messageDate})`);
-    cb._md(`> ${messageText}`);
+    cb._md(`**${messageText}**`);
   }
 
   return await cb.render();
