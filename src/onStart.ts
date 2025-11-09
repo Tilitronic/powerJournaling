@@ -37,18 +37,29 @@ export async function onStart() {
 
       if (folder && "children" in folder) {
         const datePattern = /^\d{2}\.\d{2}\.\d{4}\.md$/;
+        let deletedCount = 0;
         for (const child of folder.children as any[]) {
           if (
             "extension" in child &&
             child.extension === "md" &&
             datePattern.test(child.name)
           ) {
-            logger.dev(
-              `Deleting script-triggering note (early morning abort): ${child.path}`
-            );
-            await obApp.vault.delete(child);
+            try {
+              logger.info(
+                `Deleting script-triggering note (early morning abort): ${child.name}`
+              );
+              await obApp.vault.delete(child);
+              deletedCount++;
+            } catch (err) {
+              logger.error(`Failed to delete ${child.name}:`, err as Error);
+            }
           }
         }
+        logger.info(
+          `Early morning cleanup: deleted ${deletedCount} script-triggering note(s)`
+        );
+      } else {
+        logger.warn(`Core directory not found or has no children: ${coreDir}`);
       }
 
       logger.info(
