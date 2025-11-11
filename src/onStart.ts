@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import type { MarkdownView } from "obsidian";
+import type { MarkdownView, TFolder, TFile } from "obsidian";
 import { useLogger, LNs, obApp, config } from "./globals";
 import {
   inputCollector,
@@ -38,17 +38,29 @@ export async function onStart() {
       if (folder && "children" in folder) {
         const datePattern = /^\d{2}\.\d{2}\.\d{4}\.md$/;
         let deletedCount = 0;
-        for (const child of folder.children as any[]) {
-          if (
-            "extension" in child &&
-            child.extension === "md" &&
-            datePattern.test(child.name)
-          ) {
+
+        // Log all children for debugging
+        logger.info(
+          `Core directory children count: ${
+            (folder as TFolder).children.length
+          }`
+        );
+        for (const child of (folder as TFolder).children) {
+          const isFile = "extension" in child;
+          logger.info(
+            `Found child: ${child.name} (type: ${isFile ? "md" : "folder"})`
+          );
+        }
+
+        for (const child of (folder as TFolder).children) {
+          const isFile =
+            "extension" in child && (child as TFile).extension === "md";
+          if (isFile && datePattern.test(child.name)) {
             try {
               logger.info(
                 `Deleting script-triggering note (early morning abort): ${child.name}`
               );
-              await obApp.vault.delete(child);
+              await obApp.vault.delete(child as TFile);
               deletedCount++;
             } catch (err) {
               logger.error(`Failed to delete ${child.name}:`, err as Error);
@@ -59,7 +71,7 @@ export async function onStart() {
           `Early morning cleanup: deleted ${deletedCount} script-triggering note(s)`
         );
       } else {
-        logger.warn(`Core directory not found or has no children: ${coreDir}`);
+        logger.warn(`Core directory not found or is not a folder: ${coreDir}`);
       }
 
       logger.info(
@@ -95,15 +107,16 @@ export async function onStart() {
     const folder = obApp.vault.getAbstractFileByPath(coreDir);
     if (folder && "children" in folder) {
       const datePattern = /^\d{2}\.\d{2}\.\d{4}\.md$/;
-      for (const child of folder.children as any[]) {
+      for (const child of (folder as TFolder).children) {
+        const isFile =
+          "extension" in child && (child as TFile).extension === "md";
         if (
-          "extension" in child &&
-          child.extension === "md" &&
+          isFile &&
           datePattern.test(child.name) &&
           child.name !== todayNote
         ) {
           logger.dev("Deleting old app-triggering note: " + child.path);
-          await obApp.vault.delete(child);
+          await obApp.vault.delete(child as TFile);
         }
       }
     }
