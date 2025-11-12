@@ -1,6 +1,9 @@
 import { format } from "date-fns";
 import type { MarkdownView, TFolder, TFile } from "obsidian";
 import { useLogger, LNs, obApp, config } from "./globals";
+
+// Global queue for deferred deletions (happens after script execution)
+let deferredDeletions: { path: string; fileName: string }[] = [];
 import {
   inputCollector,
   CollectedInputsByReport,
@@ -25,7 +28,7 @@ export async function onStart() {
     // Early morning abort (00:00 - 03:59) - do minimal work and exit
     if (currentHour >= 0 && currentHour < 4) {
       logger.info(
-        `Current time is ${format(
+        `🕐 EARLY MORNING ABORT: Current time is ${format(
           now,
           "HH:mm"
         )} (before 04:00) - aborting report creation`
@@ -33,49 +36,75 @@ export async function onStart() {
 
       // Delete both yesterday's and today's script-triggering notes
       const coreDir = `${config.projectDir}/${config.coreDir}`;
+
       const folder = obApp.vault.getAbstractFileByPath(coreDir);
 
       if (folder && "children" in folder) {
         const datePattern = /^\d{2}\.\d{2}\.\d{4}\.md$/;
         let deletedCount = 0;
 
-        // Log all children for debugging
-        logger.info(
-          `Core directory children count: ${
-            (folder as TFolder).children.length
-          }`
-        );
-        for (const child of (folder as TFolder).children) {
-          const isFile = "extension" in child;
-          logger.info(
-            `Found child: ${child.name} (type: ${isFile ? "md" : "folder"})`
-          );
-        }
-
+        // Collect file names to delete (don't iterate over stale folder.children array)
+        const filesToDelete: string[] = [];
         for (const child of (folder as TFolder).children) {
           const isFile =
             "extension" in child && (child as TFile).extension === "md";
-          if (isFile && datePattern.test(child.name)) {
-            try {
-              logger.info(
-                `Deleting script-triggering note (early morning abort): ${child.name}`
-              );
-              await obApp.vault.delete(child as TFile);
-              deletedCount++;
-            } catch (err) {
-              logger.error(`Failed to delete ${child.name}:`, err as Error);
-            }
+          const matchesPattern = datePattern.test(child.name);
+
+          if (isFile && matchesPattern) {
+            filesToDelete.push(child.name);
           }
         }
-        logger.info(
-          `Early morning cleanup: deleted ${deletedCount} script-triggering note(s)`
-        );
+
+        // Delete script-triggering notes
+        for (const fileName of filesToDelete) {
+          try {
+            const filePath = `${coreDir}/${fileName}`;
+            const fileToDelete = obApp.vault.getAbstractFileByPath(filePath);
+            
+            if (fileToDelete && "extension" in fileToDelete && (fileToDelete as TFile).extension === "md") {
+              // If it's today's note, defer deletion (script is running inside it)
+              if (fileName === todayNote) {
+                logger.dev(`⏱️ Deferring deletion of today's note: ${fileName}`);
+                deferredDeletions.push({ path: filePath, fileName });
+                // Schedule the deferred deletion to run after this script completes
+                requestIdleCallback(() => {
+                  processDeferredDeletions();
+                }, { timeout: 2000 });
+                deletedCount++;
+              } else {
+                // For old notes, try direct deletion
+                try {
+                  await obApp.vault.delete(fileToDelete as TFile);
+                  logger.dev(`Deleted old script-triggering note: ${fileName}`);
+                  deletedCount++;
+                } catch (err) {
+                  logger.error(`Failed to delete ${fileName}, deferring:`, err as Error);
+                  deferredDeletions.push({ path: filePath, fileName });
+                  requestIdleCallback(() => {
+                    processDeferredDeletions();
+                  }, { timeout: 2000 });
+                  deletedCount++;
+                }
+              }
+            }
+          } catch (err) {
+            logger.error(`Failed to process ${fileName}:`, err as Error);
+          }
+        }
+        if (deletedCount > 0) {
+          logger.info(`Cleaned up ${deletedCount} script-triggering note(s) for early morning abort`);
+        }
       } else {
-        logger.warn(`Core directory not found or is not a folder: ${coreDir}`);
+        logger.warn(`⚠️ Core directory not found or has no children: ${coreDir}`);
+        if (!folder) {
+          logger.warn(`⚠️ Folder object is null`);
+        } else if (!("children" in folder)) {
+          logger.warn(`⚠️ Folder doesn't have children property`);
+        }
       }
 
       logger.info(
-        "Report creation aborted. Please open after 04:00 to create today's report."
+        "🚫 Report creation aborted. Please open after 04:00 to create today's report."
       );
       return; // Exit early - do nothing else
     }
@@ -147,6 +176,45 @@ export async function onStart() {
   } catch (err) {
     logger.error("Failed to run onStart:", err as Error);
   }
+}
+
+/**
+ * Process deferred deletions after script execution.
+ * This handles files that couldn't be deleted while the script was running.
+ * Called via requestIdleCallback to ensure script has fully exited.
+ * 
+ * Note: After deletion, Daily Notes plugin may try to access the file and throw ENOENT.
+ * This is harmless and expected - the file is successfully deleted.
+ */
+export async function processDeferredDeletions() {
+  if (deferredDeletions.length === 0) {
+    return;
+  }
+
+  logger.info(`🔄 Processing ${deferredDeletions.length} deferred deletion(s)...`);
+
+  for (const deletion of deferredDeletions) {
+    try {
+      const file = obApp.vault.getAbstractFileByPath(deletion.path);
+      if (file && "extension" in file) {
+        logger.info(`🗑️ Deferred deletion: ${deletion.fileName}`);
+        await obApp.vault.delete(file as TFile);
+        logger.info(`✅ Deferred deletion successful: ${deletion.fileName}`);
+      } else {
+        logger.info(`ℹ️ File already deleted (not found): ${deletion.fileName}`);
+      }
+    } catch (err) {
+      // Only log real errors, not ENOENT (which means the file was already deleted)
+      const errorMsg = (err as any)?.message || String(err);
+      if (errorMsg.includes("ENOENT") || errorMsg.includes("not found")) {
+        logger.info(`ℹ️ File already deleted during deferred cleanup: ${deletion.fileName}`);
+      } else {
+        logger.error(`❌ Failed to deferred delete ${deletion.fileName}:`, err as Error);
+      }
+    }
+  }
+
+  deferredDeletions = [];
 }
 
 /**

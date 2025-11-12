@@ -12,19 +12,19 @@ Power Journal is configured to run automatically using Daily Note and Templater 
 
 2. **Daily Execution:** The bundled script is copied to your Obsidian vault and runs automatically each day when you open your daily note
 
-3. **Form Generation:** The script builds a markdown file as an interactive form using invisible HTML tags (<span>) to capture:
+3. **Form Generation:** The script builds a markdown file as an interactive form using invisible HTML tags (<span>) to capture
 
-   - Text inputs
-   - Number inputs
-   - Checkbox inputs
+   - text inputs
+   - number inputs
+   - checkbox inputs
 
-     **Important:** Do not modify these HTML tags manually, as it will cause errors in data collection.
+     **Important.** Do not modify these HTML tags manually, as it will cause errors in data collection.
 
-4. **Data Collection:** When creating a new note, the script:
+4. **Data Collection.** When creating a new note, the script:
 
-   - Collects data from the previous day's note
-   - Saves it to a local database using [lowdb](https://github.com/typicode/lowdb)
-   - Uses the collected data to display statistics and trends in the new note
+   - collects data from the previous day's note,
+   - saves it to a local database using [lowdb](https://github.com/typicode/lowdb),
+   - uses the collected data to display statistics and trends in the new note.
 
 5. **Progressive Tracking:** Over time, you build a rich dataset that powers insights about your wellbeing patterns and progress
 
@@ -141,4 +141,4 @@ For commercial licensing inquiries, please contact the author.
 
 ---
 
-**Made with ❤️ for better wellbeing tracking**
+**Made with ❤️ for better wellbeing tracking and improvement**
