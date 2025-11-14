@@ -28,10 +28,77 @@ export async function onStart() {
     // Early morning abort (00:00 - 03:59) - do minimal work and exit
     if (currentHour >= 0 && currentHour < 4) {
       logger.info(
-        `🕐 EARLY MORNING ABORT: Current time is ${format(
+        `🕐 EARLY MORNING: Current time is ${format(
           now,
           "HH:mm"
-        )} (before 04:00) - aborting report creation`
+        )} (before 04:00)`
+      );
+
+      // Check if yesterday's report file exists
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayDateFormatted = format(yesterday, "dd.MM.yyyy");
+
+      let yesterdayReportExists = false;
+      try {
+        const reportFolder = savingService.reportFolders["almostDailyReport"];
+        const files = await savingService._listFiles(reportFolder);
+
+        // Pattern: DaysRemaining-DD.MM.YYYY-ReportNumber-reportType.pjf.md
+        // Example: 063-13.11.2025-00001-almostDailyReport.pjf.md
+        const datePattern = new RegExp(
+          `-${yesterdayDateFormatted.replace(/\./g, "\\.")}-\\d{5}-`
+        );
+
+        yesterdayReportExists = files.some((file) => datePattern.test(file));
+
+        if (yesterdayReportExists) {
+          logger.dev(
+            `Yesterday's report file found: ${yesterdayDateFormatted}`
+          );
+        }
+      } catch (err) {
+        logger.dev(
+          "Could not check for yesterday's report file:",
+          err as Error
+        );
+      }
+
+      // If yesterday's report missing, create retroactive report
+      if (!yesterdayReportExists) {
+        logger.info(
+          `📋 Yesterday's report not found: ${yesterdayDateFormatted}. Creating retroactive daily report for yesterday...`
+        );
+
+        try {
+          const collectedInputs = await deleteEmptyReports();
+          logger.dev("Input collection completed");
+
+          // Close today's note if open
+          const leaves = obApp.workspace.getLeavesOfType("markdown");
+          for (const leaf of leaves) {
+            const view = leaf.view as MarkdownView;
+            const file = view.file;
+            if (file) {
+              await leaf.detach();
+            }
+          }
+
+          // Build yesterday's daily report
+          await buildDailyReport();
+          logger.info(
+            `✅ Retroactive daily report created for yesterday: ${yesterdayDateFormatted}`
+          );
+        } catch (err) {
+          logger.error("Failed to create retroactive report:", err as Error);
+        }
+
+        return; // Exit after creating yesterday's report
+      }
+
+      // Yesterday's report exists - proceed with early morning abort
+      logger.info(
+        `✅ Yesterday's report exists: ${yesterdayDateFormatted}. Early morning abort.`
       );
 
       // Delete both yesterday's and today's script-triggering notes
